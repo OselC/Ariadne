@@ -32,8 +32,13 @@ export function CameraView({
       });
       setStream(s);
       if (videoRef.current) {
-        videoRef.current.srcObject = s;
-        await videoRef.current.play();
+        const video = videoRef.current;
+        video.srcObject = s;
+        try {
+          await video.play();
+        } catch (e: any) {
+          if (e?.name !== "AbortError") console.warn("video.play failed:", e);
+        }
       }
       setStatusMsg("Hold steady — full body visible");
       // Mock steadiness oscillation for demo (real MediaPipe would drive this)
@@ -97,7 +102,8 @@ export function CameraView({
 
   return (
     <Card className="overflow-hidden">
-      <div className="relative bg-black aspect-[3/4] max-h-[560px] overflow-hidden">
+      <div className="bg-black flex justify-center">
+        <div className="relative bg-black aspect-[3/4] max-h-[420px] sm:max-h-[460px] w-full max-w-[315px] sm:max-w-[345px] shrink-0 overflow-hidden">
         {/* video */}
         <video ref={videoRef} playsInline muted className={`h-full w-full object-cover scale-x-[-1] ${capturedUrl ? "hidden" : "block"}`} />
         {capturedUrl && <img src={capturedUrl} alt="Captured" className="h-full w-full object-cover" />}
@@ -129,6 +135,7 @@ export function CameraView({
         </div>
 
         <canvas ref={canvasRef} className="hidden" />
+        </div>
       </div>
 
       <CardContent className="p-4 flex gap-2">

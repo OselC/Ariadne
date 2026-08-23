@@ -1,4 +1,4 @@
-# Ariadne — FitVision AI
+# Ariadne
 
 > **“The digital thread to your perfect fit.”**
 
