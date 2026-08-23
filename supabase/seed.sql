@@ -1,0 +1,18 @@
+-- Seed 8 curated products (Indonesian/Asian cuts + basics)
+-- Uses Unsplash for placeholder images
+
+insert into products (name, brand, category, price, image_url, gallery, size_chart, fabric, stretch_level) values
+('Oversized Kimono Shirt - Sora', 'Tanuki Kimono', 'upper_body', 459000, 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?q=80&w=800', array['https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?q=80&w=800'], '{"S":{"chest":98,"waist":94,"length":68},"M":{"chest":104,"waist":100,"length":70},"L":{"chest":110,"waist":106,"length":72},"XL":{"chest":116,"waist":112,"length":74}}', 'cotton-linen', 'low'),
+('Lolita Puff Sleeve Blouse', 'LoveChara', 'upper_body', 389000, 'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?q=80&w=800', array['https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?q=80&w=800'], '{"S":{"chest":84,"waist":70,"length":56},"M":{"chest":88,"waist":74,"length":58},"L":{"chest":94,"waist":80,"length":60}}', 'cotton-poplin', 'medium'),
+('Pleated Wide Hakama Pants', 'Tanuki Kimono', 'lower_body', 529000, 'https://images.unsplash.com/photo-1594633312681-425c7b97ccd1?q=80&w=800', array['https://images.unsplash.com/photo-1594633312681-425c7b97ccd1?q=80&w=800'], '{"S":{"chest":0,"waist":68,"length":98},"M":{"chest":0,"waist":74,"length":100},"L":{"chest":0,"waist":80,"length":102}}', 'poly-wool', 'low'),
+('Structured Cropped Jacket', 'W. Store', 'outerwear', 799000, 'https://images.unsplash.com/photo-1553062407-98eeb64c6a62?q=80&w=800', array['https://images.unsplash.com/photo-1553062407-98eeb64c6a62?q=80&w=800'], '{"S":{"chest":92,"waist":84,"length":52},"M":{"chest":98,"waist":90,"length":54},"L":{"chest":104,"waist":96,"length":56}}', 'tweed', 'low'),
+('Floral Wrap Dress - Sakura', 'LoveChara', 'dress', 639000, 'https://images.unsplash.com/photo-1490481651871-ab68de25d43d?q=80&w=800', array['https://images.unsplash.com/photo-1490481651871-ab68de25d43d?q=80&w=800'], '{"S":{"chest":86,"waist":68,"length":110},"M":{"chest":92,"waist":74,"length":112},"L":{"chest":98,"waist":80,"length":114}}', 'crepe', 'high'),
+('Kebaya Modern Encim', 'Batik Studio', 'upper_body', 699000, 'https://images.unsplash.com/photo-1485230895905-ec40ba36b9bc?q=80&w=800', array['https://images.unsplash.com/photo-1485230895905-ec40ba36b9bc?q=80&w=800'], '{"S":{"chest":88,"waist":72,"length":62},"M":{"chest":94,"waist":78,"length":64},"L":{"chest":100,"waist":84,"length":66},"XL":{"chest":106,"waist":90,"length":68}}', 'brocade', 'low'),
+('Essential Relaxed Tee', 'Uni Basics', 'upper_body', 149000, 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?q=80&w=800', array['https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?q=80&w=800'], '{"S":{"chest":96,"waist":92,"length":66},"M":{"chest":102,"waist":98,"length":68},"L":{"chest":108,"waist":104,"length":70},"XL":{"chest":114,"waist":110,"length":72}}', 'cotton', 'high'),
+('High-Waist Straight Jeans', 'Denim Lab', 'lower_body', 599000, 'https://images.unsplash.com/photo-1542272604-787c3835535d?q=80&w=800', array['https://images.unsplash.com/photo-1542272604-787c3835535d?q=80&w=800'], '{"S":{"chest":0,"waist":66,"length":100},"M":{"chest":0,"waist":72,"length":102},"L":{"chest":0,"waist":78,"length":104},"XL":{"chest":0,"waist":84,"length":106}}', 'denim', 'medium');
+
+-- Seed analytics (mock last 30 days)
+-- Run after products inserted; uses random
+insert into analytics_events (product_id, event_type, size, fit_risk)
+select p.id, (array['view','try_on','purchase','return'])[floor(random()*4+1)], (array['S','M','L','XL'])[floor(random()*4+1)], (array['low','medium','high'])[floor(random()*3+1)]
+from products p, generate_series(1, 40) s;

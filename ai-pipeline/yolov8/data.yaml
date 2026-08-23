@@ -1,0 +1,14 @@
+# YOLOv8 dataset config — replace paths after annotation
+path: ./datasets/fit_anomaly
+train: images/train
+val: images/val
+test: images/test
+
+nc: 4
+names:
+  0: tight_shoulder
+  1: waist_gap
+  2: fabric_pulling
+  3: seam_strain
+# Annotate 200–300 images with LabelImg / CVAT / Roboflow
+# Export as YOLO format. Each label: <class> <x_center> <y_center> <width> <height> normalized
