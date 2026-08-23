@@ -4,7 +4,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { Camera, RefreshCcw, CheckCircle2, AlertTriangle } from "lucide-react";
+import { Camera, RefreshCcw, CheckCircle2, AlertTriangle, Upload } from "lucide-react";
 import { evaluatePoseSteadiness } from "@/lib/mediapipe";
 
 export function CameraView({
@@ -16,6 +16,7 @@ export function CameraView({
 }) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [stream, setStream] = useState<MediaStream | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [steadiness, setSteadiness] = useState(0.55);
@@ -100,6 +101,24 @@ export function CameraView({
     if (!stream) start();
   };
 
+  const handleUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (!file.type.startsWith("image/")) {
+      setError("Please upload an image file");
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = () => {
+      const dataUrl = reader.result as string;
+      setCapturedUrl(dataUrl);
+      onCapture(dataUrl, 0.95);
+      setStatusMsg("Uploaded image ready");
+    };
+    reader.readAsDataURL(file);
+    e.target.value = "";
+  };
+
   return (
     <Card className="overflow-hidden">
       <div className="bg-black flex justify-center">
@@ -151,14 +170,20 @@ export function CameraView({
             </Button>
           </>
         ) : (
-          <Button
-            variant="thread"
-            className="w-full"
-            onClick={capture}
-            disabled={disabled || steadiness < 0.32}
-          >
-            <Camera className="h-4 w-4" /> Capture — hold steady
-          </Button>
+          <>
+            <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleUpload} />
+            <Button variant="outline" className="flex-1" onClick={() => fileInputRef.current?.click()} disabled={disabled}>
+              <Upload className="h-4 w-4" /> Upload
+            </Button>
+            <Button
+              variant="thread"
+              className="flex-1"
+              onClick={capture}
+              disabled={disabled || steadiness < 0.32}
+            >
+              <Camera className="h-4 w-4" /> Capture
+            </Button>
+          </>
         )}
       </CardContent>
 
