@@ -1,10 +1,10 @@
 # Ariadne — FitVision AI
 
-> **“The digital thread to your perfect fit.”** Guiding you through the fashion labyrinth.
+> **“The digital thread to your perfect fit.”**
 
 Smart Commerce & Return-Prevention Ecosystem for fashion e-commerce. Combines **Real-Time Body & Fabric Analysis** with **Virtual Try-On (VTON)** to eliminate sizing uncertainty, while giving merchants **Supply Chain Insights** that cut return costs & deadstock.
 
-For **COMPFEST AIC — AI for the Backbone of the Economy** · Primary: Smart Commerce · Secondary: Smart Logistics.
+For **COMPFEST AIC — AI for the Backbone of the Economy** · Smart Commerce
 
 ---
 
@@ -34,8 +34,6 @@ MediaPipe Pose (client) → steadiness gate → clean Base64 frame
 
 ## Quick Start
 
-> **Do not auto-install** — run manually as requested.
-
 ```bash
 # 1. install (you run manually)
 npm install
@@ -56,7 +54,7 @@ npm run dev   # → http://localhost:3000
 
 Open `/try-on` for consumer flow, `/dashboard` for merchant analytics.
 
-**Mock mode:** `NEXT_PUBLIC_MOCK_AI=true` bypasses OpenAI/Replicate with realistic fixtures — perfect for hackathon demo without keys/billing.
+**Mock mode:** `NEXT_PUBLIC_MOCK_AI=true` bypasses OpenAI/Replicate with realistic fixtures.
 
 ---
 
@@ -90,16 +88,10 @@ Dataset curation (20–50 multi-angle): lovechara.work, tumblr artist-refs, @Lol
 
 | Role | PIC |
 |------|-----|
-| Frontend Lead | Sergio |
-| Backend & Integration Lead | Vincenzo |
-| AI Pipeline & Fine-Tuning Lead | Osel |
-| Merchant Dashboard Lead | Louis |
-| Product & Pitch Lead | Kay |
+| Frontend Lead | Sergio Winnero |
+| Backend & Integration Lead | Vincent |
+| AI Pipeline & Fine-Tuning Lead | Osel Citta Chen |
+| Merchant Dashboard Lead | Louis Alexander Pekandi |
+| Product & Pitch Lead | Putri Khairani Azzahra |
 
-## Tagline Origins
-
-*Ariadne gave Theseus a red thread to escape the labyrinth.* The **Fabric Thread** (weaving) + **Tech Thread** (live data threads) — our AI weaves garments onto your moving body with mathematical precision.
-
----
-
-Built for COMPFEST AIC. Stack: Next.js, Tailwind, shadcn/ui, Supabase, OpenAI, Replicate, MediaPipe, LoRA, YOLOv8.
+Stack: Next.js, Tailwind, shadcn/ui, Supabase, OpenAI, Replicate, MediaPipe, LoRA, YOLOv8.
