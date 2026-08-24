@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { analyzeFitWithGPT4o, mockFitAnalysis } from "@/lib/openai";
+import { analyzeFitWithHF, getHFToken, mockFitAnalysis } from "@/lib/huggingface";
 import { getSupabaseServer } from "@/lib/supabase/server";
 
 export const maxDuration = 30;
@@ -38,26 +38,35 @@ export async function POST(req: NextRequest) {
       };
     }
 
-    const useMock = process.env.NEXT_PUBLIC_MOCK_AI === "true" || !process.env.OPENAI_API_KEY;
+    const hasHF = !!getHFToken();
+    const useMock = process.env.NEXT_PUBLIC_MOCK_AI === "true" || !hasHF;
 
     let analysis: any;
+    let isMock = useMock;
     if (useMock) {
-      await new Promise((r) => setTimeout(r, 900)); // simulate latency
+      await new Promise((r) => setTimeout(r, 900));
       analysis = mockFitAnalysis(selectedSize ?? "M");
     } else {
-      analysis = await analyzeFitWithGPT4o({
-        imageBase64,
-        product: {
-          name: product.name,
-          brand: product.brand,
-          category: product.category,
-          fabric: product.fabric,
-          stretch_level: product.stretch_level,
-          size_chart: product.size_chart,
-        },
-        selectedSize,
-        poseSteadiness,
-      });
+      try {
+        analysis = await analyzeFitWithHF({
+          imageBase64,
+          product: {
+            name: product.name,
+            brand: product.brand,
+            category: product.category,
+            fabric: product.fabric,
+            stretch_level: product.stretch_level,
+            size_chart: product.size_chart,
+          },
+          selectedSize,
+          poseSteadiness,
+        });
+      } catch (err: any) {
+        console.warn("HF analyze failed, falling back to mock:", err?.cause ?? err?.message);
+        await new Promise((r) => setTimeout(r, 600));
+        analysis = mockFitAnalysis(selectedSize ?? "M");
+        isMock = true;
+      }
     }
 
     // Log analytics event (try_on)
@@ -72,7 +81,7 @@ export async function POST(req: NextRequest) {
       } catch {}
     }
 
-    return NextResponse.json({ analysis, mock: useMock });
+    return NextResponse.json({ analysis, mock: isMock });
   } catch (e: any) {
     console.error("analyze-fit error", e);
     return NextResponse.json({ error: e.message ?? "Analysis failed" }, { status: 500 });

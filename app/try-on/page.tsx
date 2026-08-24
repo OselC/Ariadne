@@ -95,7 +95,7 @@ export default function TryOnPage() {
             Live Try-On
           </h1>
           <p className="mt-1 text-sm text-muted-foreground">
-            Layer 1: GPT Vision (fit) · Layer 2: IDM-VTON + LoRA (render) · MediaPipe Pose (steadiness)
+            Layer 1: HF Vision (fit) · Layer 2: IDM-VTON + LoRA (render) · MediaPipe Pose (steadiness)
           </p>
         </div>
         <Badge variant="outline" className="rounded-full">Hybrid AI · No local GPU · Supabase logs</Badge>
@@ -162,7 +162,7 @@ export default function TryOnPage() {
                   </Button>
                 </div>
                 <div className="text-[11px] text-muted-foreground">
-                  Both layers run in parallel — GPT-4o parses fit while IDM-VTON renders drape.
+                  Both layers run in parallel — HF Vision parses fit while IDM-VTON renders drape.
                 </div>
               </CardContent>
             </Card>
@@ -174,7 +174,7 @@ export default function TryOnPage() {
           <div className="text-xs font-semibold tracking-widest text-muted-foreground">OUTPUT</div>
 
           <FitAnalysisCard analysis={analysis} selectedSize={selectedSize} />
-          {mockFlags.fit && <div className="text-[11px] text-muted-foreground text-center">Mock fit — set OPENAI_API_KEY for live GPT-4o</div>}
+          {mockFlags.fit && <div className="text-[11px] text-muted-foreground text-center">Mock fit — set HF_TOKEN for live Hugging Face</div>}
 
           <TryOnPreview resultUrl={resultUrl} garmentUrl={selected?.image_url} mock={mockFlags.vton} />
 

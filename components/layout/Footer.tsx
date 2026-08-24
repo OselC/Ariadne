@@ -7,7 +7,7 @@ export function Footer() {
             <div className="font-display text-lg font-bold">Ariadne</div>
             <p className="mt-2 max-w-md text-sm text-muted-foreground">
               &ldquo;The digital thread to your perfect fit.&rdquo; Guiding you through the fashion labyrinth with
-              Hybrid AI — GPT-4o Vision + IDM-VTON + MediaPipe.
+              Hybrid AI — Hugging Face Qwen2-VL + IDM-VTON + MediaPipe.
             </p>
             <p className="mt-3 text-xs text-muted-foreground">
               Smart Commerce (Primary) &middot; Smart Logistics (Secondary) &middot; Backbone of the Economy
@@ -28,7 +28,7 @@ export function Footer() {
             <ul className="mt-3 space-y-1 text-xs text-muted-foreground">
               <li>Next.js + Tailwind + shadcn/ui</li>
               <li>Supabase · Node.js</li>
-              <li>OpenAI GPT-4o Vision · Replicate IDM-VTON</li>
+              <li>Hugging Face Qwen2-VL · Replicate IDM-VTON</li>
               <li>MediaPipe Pose · LoRA / YOLOv8</li>
             </ul>
           </div>

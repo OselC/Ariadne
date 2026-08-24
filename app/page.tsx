@@ -67,7 +67,7 @@ export default function LandingPage() {
                 <div className="text-xs tracking-widest opacity-60">HYBRID AI ARCHITECTURE</div>
                 <div className="mt-2 grid grid-cols-2 gap-2 text-xs">
                   <div className="rounded-xl bg-white/10 border border-white/10 p-3">
-                    <div className="font-semibold flex items-center gap-1.5"><ScanLine className="h-3.5 w-3.5 text-[#e63946]" /> Layer 1: GPT Vision</div>
+                    <div className="font-semibold flex items-center gap-1.5"><ScanLine className="h-3.5 w-3.5 text-[#e63946]" /> Layer 1: HF Vision</div>
                     <div className="opacity-70 mt-1">Parses body proportions, size charts & fabric stretch</div>
                   </div>
                   <div className="rounded-xl bg-white/10 border border-white/10 p-3">
@@ -82,7 +82,7 @@ export default function LandingPage() {
                 </div>
               </div>
               <CardContent className="p-4 text-xs text-muted-foreground">
-                Live Smartphone Camera → MediaPipe Pose (steadiness) → Base64 → GPT-4o + Replicate in parallel
+                Live Smartphone Camera → MediaPipe Pose (steadiness) → Base64 → Hugging Face + Replicate in parallel
               </CardContent>
             </Card>
           </div>
@@ -109,7 +109,7 @@ export default function LandingPage() {
             {
               icon: Ruler,
               title: "2. Fit intelligence",
-              desc: "GPT-4o Vision parses body proportions, reads the brand’s size chart, factors fabric stretch → fit risk & recommended size.",
+              desc: "Hugging Face Qwen2-VL parses body proportions, reads the brand’s size chart, factors fabric stretch → fit risk & recommended size.",
               color: "from-[#e63946] to-[#c1121f]",
             },
             {

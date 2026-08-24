@@ -67,7 +67,7 @@ export function SizingTrends({ data }: { data: any }) {
       <Card className="lg:col-span-2">
         <CardHeader>
           <CardTitle className="text-base">Fit Risk Distribution</CardTitle>
-          <CardDescription>Layer 1 (GPT-4o) risk assessment drives pre-purchase warnings. Target &lt;15% high-risk purchases.</CardDescription>
+          <CardDescription>Layer 1 (HF) risk assessment drives pre-purchase warnings. Target &lt;15% high-risk purchases.</CardDescription>
         </CardHeader>
         <CardContent className="h-[240px] flex items-center">
           <ResponsiveContainer width="100%" height="100%">

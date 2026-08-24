@@ -36,7 +36,7 @@ export function FitAnalysisCard({ analysis, selectedSize }: { analysis: FitAnaly
             <CardTitle className="flex items-center gap-2">
               <Sparkles className="h-4 w-4 text-primary" /> Fit Intelligence
             </CardTitle>
-            <CardDescription className="mt-1">Layer 1 — GPT-4o Vision</CardDescription>
+            <CardDescription className="mt-1">Layer 1 — Hugging Face Vision</CardDescription>
           </div>
           <Badge variant={riskColor as any} className="capitalize">
             {analysis.fit_risk} risk
