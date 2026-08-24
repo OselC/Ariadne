@@ -8,7 +8,7 @@ export function KPIRow({ kpis }: { kpis: any }) {
   const saved = kpis.rtoSavedIDR;
   const uplift = kpis.conversionUplift;
   const before = kpis.returnRateBefore;
-  const after = kpis.returnRate ?? 0;
+  const after = kpis.returnRate;
   const drop = typeof before === "number" ? before - after : null;
 
   return (
@@ -19,19 +19,19 @@ export function KPIRow({ kpis }: { kpis: any }) {
             <div className="text-xs opacity-80">Return rate → now</div>
             <TrendingDown aria-hidden="true" className="h-4 w-4 opacity-80" />
           </div>
-          <div className="mt-2 text-2xl font-bold">{formatPercent(after)}</div>
+          <div className="mt-2 text-2xl font-bold">{typeof after === "number" ? formatPercent(after) : "—"}</div>
           <div className="text-xs opacity-80">
-            {drop === null ? "Baseline pending" : `was ${formatPercent(before)} · ↓ ${formatPercent(drop)} saved`}
+            {drop === null ? "Live baseline pending" : `was ${formatPercent(before)} · ↓ ${formatPercent(drop)} saved`}
           </div>
           <Badge variant="outline" className="mt-2">
-            {kpis.returns} returns / {kpis.purchases} purchases
+            {typeof kpis.returns === "number" && typeof kpis.purchases === "number" ? `${kpis.returns} returns / ${kpis.purchases} purchases` : "Live counts pending"}
           </Badge>
         </CardContent>
       </Card>
       <Card className="lg:col-span-3">
         <CardContent className="p-5">
           <div className="text-xs text-muted-foreground flex items-center gap-1.5"><Package aria-hidden="true" className="h-3.5 w-3.5" /> Try-ons</div>
-          <div className="mt-2 text-2xl font-bold">{kpis.tryOns}</div>
+          <div className="mt-2 text-2xl font-bold">{typeof kpis.tryOns === "number" ? kpis.tryOns : "—"}</div>
           <div className="text-xs text-[var(--color-success)]">
             {typeof uplift === "number" ? `+${uplift}% conversion uplift` : "Conversion benchmark pending"}
           </div>

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { ArrowRight, Loader2, ScanLine, ShoppingBag, Wand2 } from "lucide-react";
+import { Loader2, ScanLine, ShoppingBag, Wand2 } from "lucide-react";
 import { CameraView } from "@/components/consumer/CameraView";
 import { GarmentSelector } from "@/components/consumer/GarmentSelector";
 import { FitAnalysisCard, type FitAnalysis } from "@/components/consumer/FitAnalysisCard";
@@ -28,6 +28,7 @@ export default function TryOnPage() {
   const [trying, setTrying] = useState(false);
   const [resultUrl, setResultUrl] = useState<string | null>(null);
   const [mockFlags, setMockFlags] = useState<{ fit?: boolean; vton?: boolean }>({});
+  const [actionError, setActionError] = useState<string | null>(null);
 
   const handleCapture = (dataUrl: string, s: number) => {
     setFrame(dataUrl);
@@ -38,6 +39,7 @@ export default function TryOnPage() {
     if (!frame || !selected) return;
     setAnalyzing(true);
     setAnalysis(null);
+    setActionError(null);
     try {
       const res = await fetch("/api/analyze-fit", {
         method: "POST",
@@ -54,8 +56,8 @@ export default function TryOnPage() {
       setAnalysis(json.analysis);
       setMockFlags((current) => ({ ...current, fit: json.mock }));
       if (json.analysis?.recommended_size) setSelectedSize(json.analysis.recommended_size);
-    } catch (error: any) {
-      alert(error.message);
+    } catch (error) {
+      setActionError(error instanceof Error ? error.message : "Fit analysis failed. Try again.");
     } finally {
       setAnalyzing(false);
     }
@@ -65,6 +67,7 @@ export default function TryOnPage() {
     if (!frame || !selected) return;
     setTrying(true);
     setResultUrl(null);
+    setActionError(null);
     try {
       const res = await fetch("/api/virtual-tryon", {
         method: "POST",
@@ -82,8 +85,8 @@ export default function TryOnPage() {
       if (json.error) throw new Error(json.error);
       setResultUrl(json.resultUrl);
       setMockFlags((current) => ({ ...current, vton: json.mock }));
-    } catch (error: any) {
-      alert(error.message);
+    } catch (error) {
+      setActionError(error instanceof Error ? error.message : "Try-on rendering failed. Try again.");
     } finally {
       setTrying(false);
     }
@@ -99,7 +102,7 @@ export default function TryOnPage() {
           </p>
         </div>
         <div className="self-end text-sm text-muted-foreground lg:col-span-5 lg:text-right">
-          MediaPipe Pose · Hugging Face Qwen2-VL · IDM-VTON · Supabase
+          Browser camera · Hugging Face Qwen2-VL · IDM-VTON · Supabase
         </div>
       </header>
 
@@ -175,6 +178,7 @@ export default function TryOnPage() {
                   </Button>
                 </div>
                 <p className="text-xs leading-5 text-muted-foreground">Fit analysis and rendering may run independently; each result remains visible when the other finishes.</p>
+                <p className="min-h-5 text-xs text-destructive" role="alert">{actionError}</p>
               </CardContent>
             </Card>
           )}
@@ -193,16 +197,16 @@ export default function TryOnPage() {
               <CardContent className="space-y-4 p-4">
                 <ShoppingBag aria-hidden="true" className="h-5 w-5 text-[var(--color-dark-ink)]" />
                 <div>
-                  <div className="text-sm font-semibold">Ready to continue?</div>
-                  <div className="mt-1 text-xs leading-5">Checkout logs the purchase outcome for merchant analysis.</div>
+                  <div className="text-sm font-semibold">Checkout integration pending</div>
+                  <div className="mt-1 text-xs leading-5">Purchase outcomes will feed merchant analysis after checkout is connected.</div>
                 </div>
                 <Button
                   variant="thread"
                   size="sm"
                   className="w-full"
-                  onClick={() => alert("Checkout flow: would log purchase event to Supabase analytics_events. Demo stops here.")}
+                  disabled
                 >
-                  Checkout <ArrowRight aria-hidden="true" className="h-3.5 w-3.5" />
+                  Checkout unavailable
                 </Button>
               </CardContent>
             </Card>

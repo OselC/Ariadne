@@ -5,7 +5,6 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Camera, RefreshCcw, CheckCircle2, AlertTriangle, Upload } from "lucide-react";
-import { evaluatePoseSteadiness } from "@/lib/mediapipe";
 
 export function CameraView({
   onCapture,
@@ -42,19 +41,14 @@ export function CameraView({
         }
       }
       setStatusMsg("Hold steady — full body visible");
-      // Mock steadiness oscillation for demo (real MediaPipe would drive this)
+      // Prototype-only readiness simulation; no pose model runs in this client yet.
       let t = 0;
       const id = setInterval(() => {
         t += 1;
         const mock = 0.5 + 0.4 * Math.sin(t * 0.15) + Math.random() * 0.08;
         const clamped = Math.min(0.98, Math.max(0.25, mock));
         setSteadiness(clamped);
-        const evalRes = evaluatePoseSteadiness(
-          // fake landmarks to keep helper exercised
-          Array.from({ length: 33 }, (_, i) => ({ x: Math.random(), y: Math.random(), visibility: i % 7 === 0 ? 0.3 : 0.9 })),
-          []
-        );
-        setStatusMsg(clamped > 0.78 ? "Steady — ready to capture" : evalRes.message);
+        setStatusMsg(clamped > 0.78 ? "Simulation: ready to capture" : "Simulation: hold steady");
       }, 350);
       // store cleanup
       (videoRef.current as any)._steadinessInterval = id;
@@ -144,13 +138,13 @@ export function CameraView({
             {Math.round(steadiness * 100)}% steady
           </Badge>
           <span className="hidden border border-[var(--color-rule-2)] bg-[var(--color-dark-paper-2)] px-2.5 py-1 text-[11px] text-[var(--color-dark-ink)] sm:inline">
-            MediaPipe Pose · client-side
+            Readiness simulation
           </span>
         </div>
 
         {/* bottom status */}
         <div className="absolute bottom-0 left-0 right-0 bg-[var(--color-dark-paper-2)] p-3">
-          <div className="text-xs text-[var(--color-dark-ink)]">{statusMsg}</div>
+          <div className="text-xs text-[var(--color-dark-ink)]" aria-live="polite">{statusMsg}</div>
           <Progress value={steadiness * 100} label="Pose steadiness" className="mt-2" />
         </div>
 
@@ -158,9 +152,18 @@ export function CameraView({
         </div>
       </div>
 
-      <CardContent className="p-4 flex gap-2">
+      <CardContent className="flex flex-wrap gap-2 p-4">
+        <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleUpload} />
         {error ? (
-          <div className="flex-1 text-sm text-destructive">{error}</div>
+          <>
+            <div className="w-full text-sm text-destructive">{error}</div>
+            <Button variant="outline" className="flex-1" onClick={start} disabled={disabled}>
+              <RefreshCcw aria-hidden="true" className="h-4 w-4" /> Retry camera
+            </Button>
+            <Button variant="thread" className="flex-1" onClick={() => fileInputRef.current?.click()} disabled={disabled}>
+              <Upload aria-hidden="true" className="h-4 w-4" /> Upload
+            </Button>
+          </>
         ) : capturedUrl ? (
           <>
             <Button variant="outline" className="flex-1" onClick={retake} disabled={disabled}>
@@ -172,7 +175,6 @@ export function CameraView({
           </>
         ) : (
           <>
-            <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleUpload} />
             <Button variant="outline" className="flex-1" onClick={() => fileInputRef.current?.click()} disabled={disabled}>
               <Upload aria-hidden="true" className="h-4 w-4" /> Upload
             </Button>

@@ -4,42 +4,23 @@ import { getSupabaseServer } from "@/lib/supabase/server";
 export async function GET() {
   const supabase = getSupabaseServer();
 
-  // Mock analytics when no DB
+  // Keep unmeasured product outcomes empty until a real data source is connected.
   if (!supabase) {
     return NextResponse.json({
       mock: true,
       kpis: {
-        tryOns: 1248,
-        purchases: 412,
-        returns: 38,
-        returnRate: 9.2,
-        returnRateBefore: 24.5,
-        rtoSavedIDR: 18600000,
-        conversionUplift: 31,
+        tryOns: null,
+        purchases: null,
+        returns: null,
+        returnRate: null,
+        returnRateBefore: null,
+        rtoSavedIDR: null,
+        conversionUplift: null,
       },
-      sizingDemand: [
-        { size: "S", demand: 22, returns: 5 },
-        { size: "M", demand: 38, returns: 9 },
-        { size: "L", demand: 26, returns: 14 },
-        { size: "XL", demand: 14, returns: 8 },
-      ],
-      returnsByCategory: [
-        { category: "upper_body", returns: 18, total: 140 },
-        { category: "lower_body", returns: 12, total: 68 },
-        { category: "dress", returns: 6, total: 54 },
-        { category: "outerwear", returns: 2, total: 22 },
-      ],
-      weeklyTrend: [
-        { week: "W1", tryOns: 180, purchases: 52, returns: 11 },
-        { week: "W2", tryOns: 220, purchases: 71, returns: 9 },
-        { week: "W3", tryOns: 310, purchases: 105, returns: 8 },
-        { week: "W4", tryOns: 410, purchases: 138, returns: 7 },
-      ],
-      fitRisk: [
-        { risk: "low", count: 682 },
-        { risk: "medium", count: 312 },
-        { risk: "high", count: 128 },
-      ],
+      sizingDemand: [],
+      returnsByCategory: [],
+      weeklyTrend: [],
+      fitRisk: [],
     });
   }
 
@@ -51,7 +32,8 @@ export async function GET() {
     const purchases = byType("purchase");
     const returns = byType("return");
     const tryOns = byType("try_on");
-    const returnRate = purchases ? (returns / purchases) * 100 : 0;
+    const hasEvents = (events ?? []).length > 0;
+    const returnRate = purchases ? (returns / purchases) * 100 : null;
 
     // demand by size
     const sizes = ["S", "M", "L", "XL"];
@@ -80,10 +62,10 @@ export async function GET() {
     return NextResponse.json({
       mock: false,
       kpis: {
-        tryOns,
-        purchases,
-        returns,
-        returnRate: Number(returnRate.toFixed(1)),
+        tryOns: hasEvents ? tryOns : null,
+        purchases: hasEvents ? purchases : null,
+        returns: hasEvents ? returns : null,
+        returnRate: returnRate === null ? null : Number(returnRate.toFixed(1)),
         returnRateBefore: null,
         rtoSavedIDR: null,
         conversionUplift: null,
