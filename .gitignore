@@ -8,9 +8,13 @@
 
 # next.js
 /.next/
+/.next-dev/
 /out/
 /build
-.next
+
+# local design audit artifacts
+/.hallmark/
+/.HALLMARK/
 
 # misc
 .DS_Store
