@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 import { cn, formatCurrencyIDR } from "@/lib/utils";
 import { Search, Shirt } from "lucide-react";
 
@@ -29,36 +30,48 @@ export function GarmentSelector({
   const [filter, setFilter] = useState("all");
   const [q, setQ] = useState("");
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [retry, setRetry] = useState(0);
 
   useEffect(() => {
     let active = true;
-    async function load() {
+    const t = setTimeout(async () => {
       setLoading(true);
-      const params = new URLSearchParams();
-      if (filter !== "all") params.set("category", filter);
-      if (q) params.set("q", q);
-      const res = await fetch(`/api/catalog?${params.toString()}`);
-      const json = await res.json();
-      if (active) {
-        setProducts(json.products ?? []);
-        setLoading(false);
+      setError(null);
+      try {
+        const params = new URLSearchParams();
+        if (filter !== "all") params.set("category", filter);
+        if (q) params.set("q", q);
+        const res = await fetch(`/api/catalog?${params.toString()}`);
+        if (!res.ok) throw new Error();
+        const json = await res.json();
+        if (active) setProducts(json.products ?? []);
+      } catch {
+        if (active) {
+          setProducts([]);
+          setError("Catalog unavailable. Try again.");
+        }
+      } finally {
+        if (active) setLoading(false);
       }
-    }
-    const t = setTimeout(load, q ? 300 : 0);
-    load();
+    }, q ? 300 : 0);
     return () => {
       active = false;
       clearTimeout(t);
     };
-  }, [filter, q]);
+  }, [filter, q, retry]);
 
   return (
     <div className="space-y-3">
-      <div className="flex gap-2">
+      <div>
+        <label htmlFor="garment-search" className="mb-2 block text-xs font-semibold">Search garments</label>
+        <div className="flex gap-2">
         <div className="relative flex-1">
           <Search aria-hidden="true" className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input placeholder="Search Tanuki, LoveChara, Kebaya…" className="pl-9" value={q} onChange={(e) => setQ(e.target.value)} />
+          <Input id="garment-search" placeholder="Search Tanuki, LoveChara, Kebaya…" className="pl-9" value={q} onChange={(e) => setQ(e.target.value)} aria-describedby="garment-search-status" aria-invalid={!!error} />
         </div>
+        </div>
+        <p id="garment-search-status" className={cn("mt-2 min-h-4 text-xs", error ? "text-destructive" : "text-muted-foreground")} aria-live="polite">{error ?? (loading ? "Updating catalogue…" : `${products.length} garments`)}</p>
       </div>
 
       <div className="flex gap-1.5 overflow-x-auto pb-1 scrollbar-thin" aria-label="Garment categories">
@@ -123,7 +136,14 @@ export function GarmentSelector({
         </div>
       )}
 
-      {!loading && products.length === 0 && (
+      {!loading && error && (
+        <div className="flex items-center justify-between gap-4 border border-dashed p-5 text-sm">
+          <span>{error}</span>
+          <Button type="button" variant="outline" size="sm" onClick={() => setRetry((value) => value + 1)}>Retry</Button>
+        </div>
+      )}
+
+      {!loading && !error && products.length === 0 && (
         <div className="border border-dashed p-8 text-center text-sm text-muted-foreground">
           No garments match. Try another brand or category.
         </div>

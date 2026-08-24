@@ -50,10 +50,6 @@ export function KPIRow({ kpis }: { kpis: any }) {
           <div className="mt-2 text-sm font-semibold">
             Review low, medium, and high risk before changing purchase controls.
           </div>
-          <div className="mt-2 flex gap-1.5 flex-wrap">
-            <Badge variant="success">Low strong</Badge>
-            <Badge variant="warning">Medium watch</Badge>
-          </div>
         </CardContent>
       </Card>
     </div>

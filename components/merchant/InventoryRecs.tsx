@@ -2,7 +2,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Lightbulb, TrendingUp, AlertCircle, PackageCheck } from "lucide-react";
+import { Lightbulb, TrendingUp, AlertCircle } from "lucide-react";
 
 export function InventoryRecs({ sizingDemand, returnsByCategory }: { sizingDemand: any[]; returnsByCategory: any[] }) {
   const topReturnSize = [...sizingDemand].sort((a, b) => (b.returns / Math.max(1, b.demand)) - (a.returns / Math.max(1, a.demand)))[0];
@@ -18,7 +18,7 @@ export function InventoryRecs({ sizingDemand, returnsByCategory }: { sizingDeman
           <div className="flex gap-3 border-t py-4 first:border-t-0">
             <TrendingUp aria-hidden="true" className="mt-0.5 h-4 w-4 shrink-0 text-[var(--color-success)]" />
             <div>
-              <div className="font-semibold">Stock deeper: Size {topDemand?.size} — highest demand ({topDemand?.demand}) with moderate returns</div>
+              <div className="font-semibold">Review stock depth: Size {topDemand?.size} — highest demand ({topDemand?.demand})</div>
               <div className="text-muted-foreground mt-1">Review the next purchase order against demand and return ratio before increasing depth.</div>
             </div>
           </div>
@@ -29,13 +29,6 @@ export function InventoryRecs({ sizingDemand, returnsByCategory }: { sizingDeman
               <div className="text-muted-foreground mt-1">
                 {topReturnSize?.returns} returns on {topReturnSize?.demand} purchases. Review garment measurements, fabric stretch, and size-chart copy before re-grading.
               </div>
-            </div>
-          </div>
-          <div className="flex gap-3 border-t py-4">
-            <PackageCheck aria-hidden="true" className="mt-0.5 h-4 w-4 shrink-0" />
-            <div>
-              <div className="font-semibold">Prevent deadstock — bundle slow movers with try-on incentive</div>
-              <div className="text-muted-foreground mt-1">Push “Try first, free return avoided” badge on outerwear & XL — currently low velocity.</div>
             </div>
           </div>
           <div className="flex gap-2 pt-2 tnum">
@@ -60,7 +53,7 @@ export function InventoryRecs({ sizingDemand, returnsByCategory }: { sizingDeman
             Export report (CSV)
           </Button>
           <div className="text-[11px] text-muted-foreground pt-2">
-            Backbone impact: fewer RTO shipments → lower logistics share of GDP, less packaging waste.
+            Track RTO shipments and packaging waste alongside recommendation outcomes.
           </div>
         </CardContent>
       </Card>

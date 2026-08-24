@@ -55,7 +55,7 @@ export function FitAnalysisCard({ analysis, selectedSize }: { analysis: FitAnaly
           <div className="border-l pl-3">
             <dt className="text-xs text-muted-foreground">Confidence</dt>
             <dd className="text-2xl font-bold">{Math.round(analysis.confidence * 100)}%</dd>
-            <Progress value={analysis.confidence * 100} className="mt-2" />
+            <Progress value={analysis.confidence * 100} label="Fit confidence" className="mt-2" />
           </div>
         </dl>
 

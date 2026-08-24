@@ -151,7 +151,7 @@ export function CameraView({
         {/* bottom status */}
         <div className="absolute bottom-0 left-0 right-0 bg-[var(--color-dark-paper-2)] p-3">
           <div className="text-xs text-[var(--color-dark-ink)]">{statusMsg}</div>
-          <Progress value={steadiness * 100} className="mt-2" />
+          <Progress value={steadiness * 100} label="Pose steadiness" className="mt-2" />
         </div>
 
         <canvas ref={canvasRef} className="hidden" />

@@ -62,7 +62,7 @@ export function SizingTrends({ data }: { data: any }) {
           <CardDescription>Compare purchase volume with returns before revising size depth.</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="h-[240px] tnum" role="img" aria-label="Purchases and returns by garment size">
+          <div className="h-[240px] tnum" role="img" aria-label="Purchases and returns by garment size" aria-describedby="sizing-demand-data">
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={data.sizingDemand}>
               <XAxis dataKey="size" tick={axisTick} axisLine={axisLine} tickLine={axisLine} />
@@ -76,6 +76,7 @@ export function SizingTrends({ data }: { data: any }) {
           <div className="mt-2 text-xs text-muted-foreground">
             Read each size as a ratio, not volume alone.
           </div>
+          <table id="sizing-demand-data" className="sr-only"><caption>Purchases and returns by garment size</caption><thead><tr><th>Size</th><th>Purchases</th><th>Returns</th></tr></thead><tbody>{data.sizingDemand.map((row: any) => <tr key={row.size}><th>{row.size}</th><td>{row.demand}</td><td>{row.returns}</td></tr>)}</tbody></table>
         </CardContent>
       </Card>
 
@@ -85,7 +86,7 @@ export function SizingTrends({ data }: { data: any }) {
           <CardDescription>Follow try-ons through purchase and return outcomes week by week.</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="h-[240px] tnum" role="img" aria-label="Weekly try-on, purchase, and return trend">
+          <div className="h-[240px] tnum" role="img" aria-label="Weekly try-on, purchase, and return trend" aria-describedby="weekly-trend-data">
           <ResponsiveContainer width="100%" height="100%">
             <LineChart data={data.weeklyTrend}>
               <XAxis dataKey="week" tick={axisTick} axisLine={axisLine} tickLine={axisLine} />
@@ -97,19 +98,16 @@ export function SizingTrends({ data }: { data: any }) {
             </LineChart>
           </ResponsiveContainer>
           </div>
+          <table id="weekly-trend-data" className="sr-only"><caption>Weekly try-on, purchase, and return trend</caption><thead><tr><th>Week</th><th>Try-ons</th><th>Purchases</th><th>Returns</th></tr></thead><tbody>{data.weeklyTrend.map((row: any) => <tr key={row.week}><th>{row.week}</th><td>{row.tryOns}</td><td>{row.purchases}</td><td>{row.returns}</td></tr>)}</tbody></table>
         </CardContent>
       </Card>
 
       <Card className="lg:col-span-2">
         <CardHeader>
           <CardTitle className="text-base">Fit Risk Distribution</CardTitle>
-<<<<<<< HEAD
-          <CardDescription>Layer 1 (GPT-4o) risk assessment drives pre-purchase warnings.</CardDescription>
-=======
-          <CardDescription>Layer 1 (HF) risk assessment drives pre-purchase warnings. Target &lt;15% high-risk purchases.</CardDescription>
->>>>>>> 5a7db915e115651f6f2c9ba1a9b7d1a72487932b
+          <CardDescription>Hugging Face fit-risk assessment drives pre-purchase warnings.</CardDescription>
         </CardHeader>
-        <CardContent className="flex h-[260px] items-center tnum" role="img" aria-label="Distribution of low, medium, and high fit risk">
+        <CardContent className="flex h-[260px] items-center tnum" role="img" aria-label="Distribution of low, medium, and high fit risk" aria-describedby="fit-risk-data">
           <ResponsiveContainer width="100%" height="100%">
             <PieChart>
               <Pie
@@ -119,6 +117,7 @@ export function SizingTrends({ data }: { data: any }) {
                 cx="50%"
                 cy="50%"
                 outerRadius={88}
+                stroke="var(--color-paper)"
                 label={{ fill: "var(--color-muted)", fontSize: 12 }}
               >
                 {data.fitRisk.map((_: any, i: number) => (
@@ -129,6 +128,7 @@ export function SizingTrends({ data }: { data: any }) {
               <Legend content={<ChartLegend />} />
             </PieChart>
           </ResponsiveContainer>
+          <ul id="fit-risk-data" className="sr-only">{data.fitRisk.map((row: any) => <li key={row.risk}>{row.risk}: {row.count}</li>)}</ul>
         </CardContent>
       </Card>
     </div>
