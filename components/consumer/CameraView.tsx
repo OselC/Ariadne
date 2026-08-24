@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Camera, RefreshCcw, CheckCircle2, AlertTriangle, Upload, ChevronDown, Clock, Zap } from "lucide-react";
+import { evaluatePoseSteadiness, MEDIAPIPE_WASM_URL } from "@/lib/mediapipe";
 
 export function CameraView({
   onCapture,
@@ -16,20 +17,32 @@ export function CameraView({
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const poseLandmarkerRef = useRef<any>(null);
+  const rafRef = useRef<number | null>(null);
+  const historyRef = useRef<number[]>([]);
   const [stream, setStream] = useState<MediaStream | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [steadiness, setSteadiness] = useState(0.55);
+  const [steadiness, setSteadiness] = useState(0.45);
   const [statusMsg, setStatusMsg] = useState("Initializing camera…");
   const [capturedUrl, setCapturedUrl] = useState<string | null>(null);
   const [captureMode, setCaptureMode] = useState<"capture" | "auto" | "timer">("capture");
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [timerSeconds, setTimerSeconds] = useState(3);
   const [countdown, setCountdown] = useState<number | null>(null);
+  const [modelReady, setModelReady] = useState(false);
   const autoTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const countdownIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
+  const stopDetection = useCallback(() => {
+    if (rafRef.current) cancelAnimationFrame(rafRef.current);
+    rafRef.current = null;
+  }, []);
+
   const start = useCallback(async () => {
     setError(null);
+    setCapturedUrl(null);
+    setCountdown(null);
+    setSteadiness(0.45);
     setStatusMsg("Requesting camera…");
     try {
       const s = await navigator.mediaDevices.getUserMedia({
@@ -46,29 +59,84 @@ export function CameraView({
           if (e?.name !== "AbortError") console.warn("video.play failed:", e);
         }
       }
-      setStatusMsg("Hold steady — full body visible");
-      let t = 0;
-      const id = setInterval(() => {
-        t += 1;
-        const mock = 0.5 + 0.4 * Math.sin(t * 0.15) + Math.random() * 0.08;
-        const clamped = Math.min(0.98, Math.max(0.25, mock));
-        setSteadiness(clamped);
-        setStatusMsg(clamped > 0.78 ? "Simulation: ready to capture" : "Simulation: hold steady");
-      }, 350);
-      (videoRef.current as any)._steadinessInterval = id;
+      setStatusMsg("Loading pose model…");
+      try {
+        const vision = await import("@mediapipe/tasks-vision");
+        const fileset = await vision.FilesetResolver.forVisionTasks(MEDIAPIPE_WASM_URL);
+        const landmarker = await vision.PoseLandmarker.createFromOptions(fileset, {
+          baseOptions: {
+            modelAssetPath: "https://storage.googleapis.com/mediapipe-models/pose_landmarker/pose_landmarker_lite/float16/1/pose_landmarker_lite.task",
+            delegate: "GPU",
+          },
+          runningMode: "VIDEO",
+          numPoses: 1,
+          minPoseDetectionConfidence: 0.5,
+          minPosePresenceConfidence: 0.5,
+          minTrackingConfidence: 0.5,
+        });
+        poseLandmarkerRef.current = landmarker;
+        setModelReady(true);
+        setStatusMsg("Pose model ready — stand steady");
+        historyRef.current = [];
+        let lastTime = -1;
+        const detect = () => {
+          const video = videoRef.current;
+          if (!video || video.readyState < 2 || video.videoWidth === 0 || capturedUrl) {
+            rafRef.current = requestAnimationFrame(detect);
+            return;
+          }
+          const now = performance.now();
+          if (now - lastTime < 120) {
+            rafRef.current = requestAnimationFrame(detect);
+            return;
+          }
+          lastTime = now;
+          try {
+            const result = landmarker.detectForVideo(video, now);
+            const landmarks = result.landmarks?.[0] ?? null;
+            if (landmarks) {
+              const avgY = landmarks.slice(11, 13).reduce((a: number, p: any) => a + p.y, 0) / 2;
+              historyRef.current.push(avgY);
+              if (historyRef.current.length > 8) historyRef.current.shift();
+            }
+            const evalRes = evaluatePoseSteadiness(landmarks as any, historyRef.current);
+            setSteadiness(evalRes.score);
+            setStatusMsg(evalRes.message);
+          } catch {}
+          rafRef.current = requestAnimationFrame(detect);
+        };
+        detect();
+      } catch {
+        setModelReady(false);
+        let t = 0;
+        const id = setInterval(() => {
+          t += 1;
+          const mock = 0.5 + 0.4 * Math.sin(t * 0.15) + Math.random() * 0.08;
+          const clamped = Math.min(0.98, Math.max(0.25, mock));
+          setSteadiness(clamped);
+          setStatusMsg(clamped > 0.78 ? "Simulation: ready to capture" : "Simulation: hold steady");
+        }, 350);
+        if (videoRef.current) (videoRef.current as any)._steadinessInterval = id;
+      }
     } catch (e: any) {
       setError(e.message ?? "Camera access denied");
       setStatusMsg("Camera unavailable");
     }
-  }, []);
+  }, [capturedUrl]);
 
   const stop = useCallback(() => {
     stream?.getTracks().forEach((tr) => tr.stop());
     if (videoRef.current && (videoRef.current as any)._steadinessInterval) {
       clearInterval((videoRef.current as any)._steadinessInterval);
     }
+    stopDetection();
+    if (poseLandmarkerRef.current) {
+      try { poseLandmarkerRef.current.close(); } catch {}
+      poseLandmarkerRef.current = null;
+    }
     setStream(null);
-  }, [stream]);
+    setModelReady(false);
+  }, [stream, stopDetection]);
 
   useEffect(() => {
     start();
@@ -97,15 +165,21 @@ export function CameraView({
     if (videoRef.current && (videoRef.current as any)._steadinessInterval) {
       clearInterval((videoRef.current as any)._steadinessInterval);
     }
+    stopDetection();
+    if (poseLandmarkerRef.current) {
+      try { poseLandmarkerRef.current.close(); } catch {}
+      poseLandmarkerRef.current = null;
+    }
     setStream(null);
     setStatusMsg("Photo captured — camera off");
-  }, [onCapture, steadiness, stream]);
+  }, [onCapture, steadiness, stream, stopDetection]);
 
   const retake = () => {
     setCapturedUrl(null);
     setCountdown(null);
     if (countdownIntervalRef.current) clearInterval(countdownIntervalRef.current);
     if (autoTimeoutRef.current) clearTimeout(autoTimeoutRef.current);
+    stopDetection();
     if (!stream) start();
   };
 
@@ -127,6 +201,7 @@ export function CameraView({
       if (videoRef.current && (videoRef.current as any)._steadinessInterval) {
         clearInterval((videoRef.current as any)._steadinessInterval);
       }
+      stopDetection();
       setStream(null);
     };
     reader.readAsDataURL(file);
@@ -177,7 +252,7 @@ export function CameraView({
       if (autoTimeoutRef.current) {
         clearTimeout(autoTimeoutRef.current);
         autoTimeoutRef.current = null;
-        setStatusMsg("Auto: hold steady — entire body visible");
+        setStatusMsg(modelReady ? "Auto: hold steady — entire body visible" : "Auto: hold steady...");
       }
     }
     return () => {
@@ -186,7 +261,7 @@ export function CameraView({
         autoTimeoutRef.current = null;
       }
     };
-  }, [steadiness, captureMode, capturedUrl, disabled, countdown, capture]);
+  }, [steadiness, captureMode, capturedUrl, disabled, countdown, capture, modelReady]);
 
   useEffect(() => {
     if (!dropdownOpen) return;
@@ -231,7 +306,7 @@ export function CameraView({
             {Math.round(steadiness * 100)}% steady
           </Badge>
           <span className="hidden border border-[var(--color-rule-2)] bg-[var(--color-dark-paper-2)] px-2.5 py-1 text-[11px] text-[var(--color-dark-ink)] sm:inline">
-            Readiness simulation
+            {modelReady ? "MediaPipe Pose · live" : "Readiness simulation"}
           </span>
         </div>
 
@@ -337,7 +412,7 @@ export function CameraView({
         </div>
       )}
 
-      {!stream && !error && (
+      {!stream && !error && !capturedUrl && (
         <div className="px-4 pb-4 text-xs text-muted-foreground">
           Tip: Stand 1.5–2m away, arms relaxed, full body in frame. Bright, even light.
         </div>
