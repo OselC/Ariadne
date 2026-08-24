@@ -8,9 +8,9 @@
 
 # next.js
 /.next/
+/.next-dev/
 /out/
 /build
-.next
 
 # misc
 .DS_Store
@@ -47,3 +47,6 @@ runs/
 
 # Supabase
 .supabase/
+
+# Hallmark
+/.hallmark/

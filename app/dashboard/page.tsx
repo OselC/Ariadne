@@ -5,12 +5,15 @@ import { SizingTrends } from "@/components/merchant/SizingTrends";
 import { InventoryRecs } from "@/components/merchant/InventoryRecs";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import { buttonVariants } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { LayoutDashboard, Store, Truck, Leaf, Loader2 } from "lucide-react";
+import { Store, Truck, Leaf } from "lucide-react";
 import Link from "next/link";
 
 export default function DashboardPage() {
+  /* Hallmark · genre: editorial · macrostructure: Workbench · design-system: design.md · designed-as-app
+   * panes: overview=12 · trends=6/6 · recommendations=8/4 · enrichment: none · nav: N9 · footer: Ft4
+   */
   const [data, setData] = useState<any | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -23,48 +26,45 @@ export default function DashboardPage() {
 
   if (loading) {
     return (
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-16 flex flex-col items-center">
-        <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
-        <div className="mt-3 text-sm text-muted-foreground">Loading merchant analytics from Supabase...</div>
+      <div className="page-shell py-16" aria-live="polite">
+        <div className="h-8 w-64 animate-pulse bg-muted" />
+        <div className="mt-4 h-4 w-full max-w-xl animate-pulse bg-muted" />
+        <div className="mt-10 grid gap-4 md:grid-cols-4">
+          {[0, 1, 2, 3].map((item) => <div key={item} className="h-28 animate-pulse border bg-[var(--color-paper-2)]" />)}
+        </div>
+        <span className="sr-only">Loading merchant analytics from Supabase…</span>
       </div>
     );
   }
 
-  const kpis = data?.kpis ?? { tryOns: 0, purchases: 0, returns: 0, returnRate: 0, returnRateBefore: 24.5, rtoSavedIDR: 0, conversionUplift: 0 };
+  const kpis = data?.kpis ?? { tryOns: 0, purchases: 0, returns: 0, returnRate: 0, returnRateBefore: null, rtoSavedIDR: null, conversionUplift: null };
 
   return (
-    <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-6 sm:py-8 space-y-6">
-      <div className="flex flex-wrap items-start justify-between gap-3">
-        <div>
-          <h1 className="font-display text-2xl sm:text-3xl font-bold flex items-center gap-2">
-            <span className="h-8 w-8 rounded-xl bg-[#0a0a0f] text-white flex items-center justify-center"><LayoutDashboard className="h-4 w-4" /></span>
-            Merchant Dashboard
-          </h1>
-          <p className="mt-1 text-sm text-muted-foreground">
-            B2B analytics — return-prevention, sizing demand & inventory forecasting. Tremor/shadcn · Supabase logs.
+    <div className="page-shell space-y-8 py-10 sm:py-12">
+      <header className="grid gap-5 border-b pb-8 lg:grid-cols-12">
+        <div className="lg:col-span-7">
+          <h1 className="text-3xl font-bold tracking-[-0.025em] sm:text-4xl">Merchant evidence</h1>
+          <p className="mt-3 max-w-2xl leading-7 text-muted-foreground">
+            Return prevention, sizing demand, and inventory signals drawn from the same fitting workflow shoppers use.
           </p>
         </div>
-        <div className="flex items-center gap-2 flex-wrap">
+        <div className="flex flex-wrap items-end gap-2 lg:col-span-5 lg:justify-end">
           {data?.mock && <Badge variant="warning">Mock data — connect Supabase for live</Badge>}
-          <Badge variant="outline" className="gap-1.5"><Store className="h-3 w-3" /> MSME / Brand portal</Badge>
-          <Link href="/try-on">
-            <Button variant="outline" size="sm">Back to Try-On</Button>
-          </Link>
+          <Badge variant="outline" className="gap-1.5"><Store aria-hidden="true" className="h-3 w-3" /> MSME brand portal</Badge>
+          <Link href="/try-on" className={buttonVariants({ variant: "outline", size: "sm" })}>Back to Try-On</Link>
         </div>
-      </div>
+      </header>
 
       {/* Alignment banner */}
-      <Card className="bg-[#0a0a0f] text-white border-0 overflow-hidden">
-        <CardContent className="p-4 sm:p-5 flex flex-col sm:flex-row gap-4 sm:items-center justify-between">
-          <div className="text-sm">
-            <span className="font-bold">COMPFEST AIC Theme:</span> AI for the Backbone of the Economy — Smart Commerce (primary) + Smart Logistics (secondary)
+      <div className="grid gap-5 border-y py-5 text-sm md:grid-cols-12">
+          <div className="md:col-span-8">
+            <span className="font-bold">COMPFEST AIC:</span> AI for the Backbone of the Economy · Smart Commerce and Smart Logistics
           </div>
-          <div className="flex gap-2 text-xs">
-            <span className="rounded-full bg-white/10 border border-white/10 px-3 py-1.5 flex items-center gap-1.5"><Truck className="h-3 w-3" /> −60% RTO shipments</span>
-            <span className="rounded-full bg-white/10 border border-white/10 px-3 py-1.5 flex items-center gap-1.5"><Leaf className="h-3 w-3" /> Less packaging waste</span>
+          <div className="flex flex-wrap gap-5 text-xs text-muted-foreground md:col-span-4 md:justify-end">
+            <span className="flex items-center gap-1.5"><Truck aria-hidden="true" className="h-3 w-3" /> Fewer reverse-logistics trips</span>
+            <span className="flex items-center gap-1.5"><Leaf aria-hidden="true" className="h-3 w-3" /> Less packaging waste</span>
           </div>
-        </CardContent>
-      </Card>
+      </div>
 
       <KPIRow kpis={kpis} />
 
@@ -81,7 +81,7 @@ export default function DashboardPage() {
         </TabsContent>
       </Tabs>
 
-      <Card className="border-dashed">
+      <Card className="border-dashed bg-[var(--color-paper-2)]">
         <CardContent className="p-4 text-xs text-muted-foreground">
           Data source: <code>analytics_events</code> (view / try_on / purchase / return) + <code>try_on_sessions</code> with <code>fit_analysis</code> JSON. In production, connect Supabase Realtime for live updates and schedule nightly aggregation for PO generation.
         </CardContent>

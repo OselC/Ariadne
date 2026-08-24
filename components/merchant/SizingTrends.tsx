@@ -1,6 +1,5 @@
 "use client";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import {
   BarChart,
   Bar,
@@ -16,7 +15,43 @@ import {
   Legend,
 } from "recharts";
 
-const COLORS = ["#10b981", "#f59e0b", "#ef4444", "#6366f1"];
+const COLORS = ["var(--color-success)", "var(--color-warning)", "var(--color-danger)", "var(--color-muted)"];
+const axisTick = { fill: "var(--color-muted)", fontSize: 12 };
+const axisLine = { stroke: "var(--color-rule)" };
+
+function ChartTooltip({ active, payload, label }: any) {
+  if (!active || !payload?.length) return null;
+
+  return (
+    <div className="rounded-[var(--radius-card)] border bg-background p-3 text-xs text-foreground shadow-[var(--shadow-card)]">
+      {label && <div className="mb-2 font-semibold">{label}</div>}
+      <div className="space-y-1.5 tnum">
+        {payload.map((item: any) => (
+          <div key={item.dataKey ?? item.name} className="flex items-center justify-between gap-5">
+            <span className="flex items-center gap-2 text-muted-foreground">
+              <span aria-hidden="true" className="h-2 w-2" style={{ backgroundColor: item.color }} />
+              {item.name}
+            </span>
+            <strong>{item.value}</strong>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function ChartLegend({ payload }: any) {
+  return (
+    <ul className="flex flex-wrap justify-center gap-x-4 gap-y-2 text-xs text-muted-foreground">
+      {payload?.map((item: any) => (
+        <li key={item.value} className="flex items-center gap-2">
+          <span aria-hidden="true" className="h-2 w-2" style={{ backgroundColor: item.color }} />
+          {item.value}
+        </li>
+      ))}
+    </ul>
+  );
+}
 
 export function SizingTrends({ data }: { data: any }) {
   return (
@@ -24,63 +59,76 @@ export function SizingTrends({ data }: { data: any }) {
       <Card>
         <CardHeader>
           <CardTitle className="text-base">Demand vs Returns by Size</CardTitle>
-          <CardDescription>Inventory recommendation: stock deeper in low-return sizes. Re-cut high-return sizes.</CardDescription>
+          <CardDescription>Compare purchase volume with returns before revising size depth.</CardDescription>
         </CardHeader>
-        <CardContent className="h-[260px]">
+        <CardContent>
+          <div className="h-[240px] tnum" role="img" aria-label="Purchases and returns by garment size" aria-describedby="sizing-demand-data">
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={data.sizingDemand}>
-              <XAxis dataKey="size" tick={{ fontSize: 12 }} />
-              <YAxis tick={{ fontSize: 12 }} />
-              <Tooltip />
-              <Bar dataKey="demand" name="Purchases" fill="#0a0a0f" radius={[8, 8, 0, 0]} />
-              <Bar dataKey="returns" name="Returns" fill="#e63946" radius={[8, 8, 0, 0]} />
+              <XAxis dataKey="size" tick={axisTick} axisLine={axisLine} tickLine={axisLine} />
+              <YAxis tick={axisTick} axisLine={axisLine} tickLine={axisLine} />
+              <Tooltip content={<ChartTooltip />} cursor={{ fill: "var(--color-paper-3)" }} />
+              <Bar dataKey="demand" name="Purchases" fill="var(--color-ink)" />
+              <Bar dataKey="returns" name="Returns" fill="var(--color-accent)" />
             </BarChart>
           </ResponsiveContainer>
-          <div className="mt-2 text-xs text-muted-foreground">
-            Insight: M is top demand; L shows higher return ratio — consider grading adjustment or fabric with more stretch.
           </div>
+          <div className="mt-2 text-xs text-muted-foreground">
+            Read each size as a ratio, not volume alone.
+          </div>
+          <table id="sizing-demand-data" className="sr-only"><caption>Purchases and returns by garment size</caption><thead><tr><th>Size</th><th>Purchases</th><th>Returns</th></tr></thead><tbody>{data.sizingDemand.map((row: any) => <tr key={row.size}><th>{row.size}</th><td>{row.demand}</td><td>{row.returns}</td></tr>)}</tbody></table>
         </CardContent>
       </Card>
 
       <Card>
         <CardHeader>
           <CardTitle className="text-base">Weekly Trend — Try-On → Purchase → Return</CardTitle>
-          <CardDescription>Healthy funnel: try-ons convert, returns decline week-over-week.</CardDescription>
+          <CardDescription>Follow try-ons through purchase and return outcomes week by week.</CardDescription>
         </CardHeader>
-        <CardContent className="h-[260px]">
+        <CardContent>
+          <div className="h-[240px] tnum" role="img" aria-label="Weekly try-on, purchase, and return trend" aria-describedby="weekly-trend-data">
           <ResponsiveContainer width="100%" height="100%">
             <LineChart data={data.weeklyTrend}>
-              <XAxis dataKey="week" tick={{ fontSize: 12 }} />
-              <YAxis tick={{ fontSize: 12 }} />
-              <Tooltip />
-              <Line type="monotone" dataKey="tryOns" stroke="#6366f1" strokeWidth={2} dot={false} name="Try-ons" />
-              <Line type="monotone" dataKey="purchases" stroke="#0a0a0f" strokeWidth={2} dot={false} name="Purchases" />
-              <Line type="monotone" dataKey="returns" stroke="#e63946" strokeWidth={2} dot={false} name="Returns" />
+              <XAxis dataKey="week" tick={axisTick} axisLine={axisLine} tickLine={axisLine} />
+              <YAxis tick={axisTick} axisLine={axisLine} tickLine={axisLine} />
+              <Tooltip content={<ChartTooltip />} cursor={{ stroke: "var(--color-rule-2)" }} />
+              <Line type="monotone" dataKey="tryOns" stroke="var(--color-muted)" strokeWidth={2} dot={false} name="Try-ons" />
+              <Line type="monotone" dataKey="purchases" stroke="var(--color-ink)" strokeWidth={2} dot={false} name="Purchases" />
+              <Line type="monotone" dataKey="returns" stroke="var(--color-accent)" strokeWidth={2} dot={false} name="Returns" />
             </LineChart>
           </ResponsiveContainer>
-          <div className="mt-2 flex gap-2 text-[11px]">
-            <Badge variant="outline">W4: returns down to single digits — Ariadne filtering works</Badge>
           </div>
+          <table id="weekly-trend-data" className="sr-only"><caption>Weekly try-on, purchase, and return trend</caption><thead><tr><th>Week</th><th>Try-ons</th><th>Purchases</th><th>Returns</th></tr></thead><tbody>{data.weeklyTrend.map((row: any) => <tr key={row.week}><th>{row.week}</th><td>{row.tryOns}</td><td>{row.purchases}</td><td>{row.returns}</td></tr>)}</tbody></table>
         </CardContent>
       </Card>
 
       <Card className="lg:col-span-2">
         <CardHeader>
           <CardTitle className="text-base">Fit Risk Distribution</CardTitle>
-          <CardDescription>Layer 1 (HF) risk assessment drives pre-purchase warnings. Target &lt;15% high-risk purchases.</CardDescription>
+          <CardDescription>Hugging Face fit-risk assessment drives pre-purchase warnings.</CardDescription>
         </CardHeader>
-        <CardContent className="h-[240px] flex items-center">
+        <CardContent className="flex h-[260px] items-center tnum" role="img" aria-label="Distribution of low, medium, and high fit risk" aria-describedby="fit-risk-data">
           <ResponsiveContainer width="100%" height="100%">
             <PieChart>
-              <Pie data={data.fitRisk} dataKey="count" nameKey="risk" cx="50%" cy="50%" outerRadius={88} label>
+              <Pie
+                data={data.fitRisk}
+                dataKey="count"
+                nameKey="risk"
+                cx="50%"
+                cy="50%"
+                outerRadius={88}
+                stroke="var(--color-paper)"
+                label={{ fill: "var(--color-muted)", fontSize: 12 }}
+              >
                 {data.fitRisk.map((_: any, i: number) => (
                   <Cell key={i} fill={COLORS[i % COLORS.length]} />
                 ))}
               </Pie>
-              <Tooltip />
-              <Legend />
+              <Tooltip content={<ChartTooltip />} />
+              <Legend content={<ChartLegend />} />
             </PieChart>
           </ResponsiveContainer>
+          <ul id="fit-risk-data" className="sr-only">{data.fitRisk.map((row: any) => <li key={row.risk}>{row.risk}: {row.count}</li>)}</ul>
         </CardContent>
       </Card>
     </div>
