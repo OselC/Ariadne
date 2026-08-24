@@ -5,7 +5,7 @@ import { SizingTrends } from "@/components/merchant/SizingTrends";
 import { InventoryRecs } from "@/components/merchant/InventoryRecs";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { buttonVariants } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Store, Truck, Leaf } from "lucide-react";
 import Link from "next/link";
@@ -16,13 +16,21 @@ export default function DashboardPage() {
    */
   const [data, setData] = useState<any | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [reload, setReload] = useState(0);
 
   useEffect(() => {
+    setLoading(true);
+    setError(null);
     fetch("/api/analytics")
-      .then((r) => r.json())
+      .then((r) => {
+        if (!r.ok) throw new Error("Merchant analytics are unavailable.");
+        return r.json();
+      })
       .then((j) => setData(j))
+      .catch(() => setError("Merchant analytics are unavailable. Try again."))
       .finally(() => setLoading(false));
-  }, []);
+  }, [reload]);
 
   if (loading) {
     return (
@@ -37,7 +45,20 @@ export default function DashboardPage() {
     );
   }
 
-  const kpis = data?.kpis ?? { tryOns: 0, purchases: 0, returns: 0, returnRate: 0, returnRateBefore: null, rtoSavedIDR: null, conversionUplift: null };
+  if (error) {
+    return (
+      <div className="page-shell py-16" role="alert">
+        <h1 className="text-3xl font-bold tracking-[-0.025em]">Merchant evidence</h1>
+        <div className="mt-8 max-w-xl border border-dashed p-6">
+          <p className="text-sm text-muted-foreground">{error}</p>
+          <Button className="mt-5" variant="outline" onClick={() => setReload((value) => value + 1)}>Retry analytics</Button>
+        </div>
+      </div>
+    );
+  }
+
+  const kpis = data?.kpis ?? { tryOns: null, purchases: null, returns: null, returnRate: null, returnRateBefore: null, rtoSavedIDR: null, conversionUplift: null };
+  const hasAnalytics = [kpis.tryOns, kpis.purchases, kpis.returns].some((value) => typeof value === "number" && value > 0);
 
   return (
     <div className="page-shell space-y-8 py-10 sm:py-12">
@@ -49,7 +70,7 @@ export default function DashboardPage() {
           </p>
         </div>
         <div className="flex flex-wrap items-end gap-2 lg:col-span-5 lg:justify-end">
-          {data?.mock && <Badge variant="warning">Mock data — connect Supabase for live</Badge>}
+          {data?.mock && <Badge variant="warning">Demo environment · live metrics pending</Badge>}
           <Badge variant="outline" className="gap-1.5"><Store aria-hidden="true" className="h-3 w-3" /> MSME brand portal</Badge>
           <Link href="/try-on" className={buttonVariants({ variant: "outline", size: "sm" })}>Back to Try-On</Link>
         </div>
@@ -68,21 +89,24 @@ export default function DashboardPage() {
 
       <KPIRow kpis={kpis} />
 
-      <Tabs defaultValue="trends">
-        <TabsList>
-          <TabsTrigger value="trends">Sizing Trends</TabsTrigger>
-          <TabsTrigger value="inventory">Inventory Recs</TabsTrigger>
-        </TabsList>
-        <TabsContent value="trends">
-          <SizingTrends data={data} />
-        </TabsContent>
-        <TabsContent value="inventory">
-          <InventoryRecs sizingDemand={data.sizingDemand ?? []} returnsByCategory={data.returnsByCategory ?? []} />
-        </TabsContent>
-      </Tabs>
+      {hasAnalytics ? (
+        <Tabs defaultValue="trends">
+          <TabsList>
+            <TabsTrigger value="trends">Sizing Trends</TabsTrigger>
+            <TabsTrigger value="inventory">Inventory Recs</TabsTrigger>
+          </TabsList>
+          <TabsContent value="trends"><SizingTrends data={data} /></TabsContent>
+          <TabsContent value="inventory"><InventoryRecs sizingDemand={data.sizingDemand ?? []} returnsByCategory={data.returnsByCategory ?? []} /></TabsContent>
+        </Tabs>
+      ) : (
+        <div className="border border-dashed p-8">
+          <h2 className="text-xl font-bold">Live evidence pending</h2>
+          <p className="mt-2 max-w-[65ch] text-sm leading-6 text-muted-foreground">Connect Supabase and record try-on, purchase, and return events. Ariadne will show measured sizing trends here without substituting fabricated proof.</p>
+        </div>
+      )}
 
       <Card className="border-dashed bg-[var(--color-paper-2)]">
-        <CardContent className="p-4 text-xs text-muted-foreground">
+        <CardContent className="max-w-[75ch] p-4 text-xs text-muted-foreground">
           Data source: <code>analytics_events</code> (view / try_on / purchase / return) + <code>try_on_sessions</code> with <code>fit_analysis</code> JSON. In production, connect Supabase Realtime for live updates and schedule nightly aggregation for PO generation.
         </CardContent>
       </Card>

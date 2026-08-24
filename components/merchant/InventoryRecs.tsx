@@ -8,6 +8,10 @@ export function InventoryRecs({ sizingDemand, returnsByCategory }: { sizingDeman
   const topReturnSize = [...sizingDemand].sort((a, b) => (b.returns / Math.max(1, b.demand)) - (a.returns / Math.max(1, a.demand)))[0];
   const topDemand = [...sizingDemand].sort((a, b) => b.demand - a.demand)[0];
 
+  if (!sizingDemand.length && !returnsByCategory.length) {
+    return <div className="border border-dashed p-8 text-sm text-muted-foreground">Inventory recommendations will appear after live purchase and return events are available.</div>;
+  }
+
   return (
     <div className="grid gap-6 lg:grid-cols-3">
       <Card className="lg:col-span-2">
@@ -49,8 +53,8 @@ export function InventoryRecs({ sizingDemand, returnsByCategory }: { sizingDeman
             </div>
           ))}
           {returnsByCategory.length === 0 && <p className="text-sm text-muted-foreground">No category data yet.</p>}
-          <Button variant="outline" size="sm" className="w-full mt-2" onClick={() => alert("Export CSV: would query Supabase analytics_events and generate report.")}>
-            Export report (CSV)
+          <Button variant="outline" size="sm" className="mt-2 w-full" disabled>
+            Export unavailable
           </Button>
           <div className="text-[11px] text-muted-foreground pt-2">
             Track RTO shipments and packaging waste alongside recommendation outcomes.

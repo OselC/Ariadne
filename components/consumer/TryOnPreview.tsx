@@ -37,7 +37,7 @@ export function TryOnPreview({
         </div>
       </div>
       <CardContent className="p-3 text-xs text-muted-foreground flex items-center justify-between">
-        <span>Fine-tuned LoRA captures structured cuts & fabric drapes base models miss.</span>
+        <span>IDM-VTON renders the selected garment against the captured frame.</span>
         {garmentUrl && <span className="hidden sm:inline">Garment → rendered</span>}
       </CardContent>
     </Card>
