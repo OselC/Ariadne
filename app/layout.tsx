@@ -22,7 +22,7 @@ export const metadata: Metadata = {
     template: "%s | Ariadne",
   },
   description:
-    "Smart Commerce & Return-Prevention Ecosystem. Real-time Body & Fabric Analysis + Virtual Try-On to eliminate sizing uncertainty and reduce RTO by 15–30%. Built for COMPFEST AIC — AI for the Backbone of the Economy.",
+    "Smart Commerce and return-prevention ecosystem combining real-time body and fabric analysis with virtual try-on. Built for COMPFEST AIC — AI for the Backbone of the Economy.",
   keywords: [
     "virtual try-on",
     "VTON",
@@ -31,7 +31,8 @@ export const metadata: Metadata = {
     "return prevention",
     "smart commerce",
     "Indonesian MSME",
-    "GPT-4o Vision",
+    "Hugging Face",
+    "Qwen2-VL",
     "IDM-VTON",
   ],
   authors: [{ name: "Ariadne Team" }],

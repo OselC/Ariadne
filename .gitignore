@@ -11,10 +11,13 @@
 /.next-dev/
 /out/
 /build
+<<<<<<< HEAD
 
 # local design audit artifacts
 /.hallmark/
 /.HALLMARK/
+=======
+>>>>>>> 73c05d696bd0cb1d6685e01d1ee9bc173fcba847
 
 # misc
 .DS_Store
@@ -51,3 +54,6 @@ runs/
 
 # Supabase
 .supabase/
+
+# Hallmark
+/.hallmark/

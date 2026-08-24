@@ -6,7 +6,7 @@ Hybrid AI: pre-trained foundations + fine-tuned LoRA / YOLOv8 for competition re
 
 ```
 Live Smartphone Camera
-   ├─ Layer 1: GPT Vision (Intelligence Engine) → body proportions, size chart parse, fabric stretch → fit_risk JSON
+   ├─ Layer 1: HF Vision (Qwen2-VL) (Intelligence Engine) → body proportions, size chart parse, fabric stretch → fit_risk JSON
    └─ Layer 2: IDM-VTON / Flux + Custom LoRA (Rendering Engine) → photoreal try-on
 MediaPipe Pose (client) → steadiness gate → clean Base64 frame
 Output: Consumer (try-on + warning) + Merchant (return risk & sizing analytics) → Supabase
@@ -49,10 +49,10 @@ python yolov8/evaluate.py --weights runs/detect/ariadne_yolo/weights/best.pt --d
 
 ## API Wiring
 
-- `lib/openai.ts` → GPT-4o Vision (Layer 1) with JSON mode + mock fallback
+- `lib/huggingface.ts` → Hugging Face Qwen2-VL (Layer 1) with JSON mode + mock fallback (HF_TOKEN)
 - `lib/replicate.ts` → Replicate IDM-VTON (Layer 2) with mock fallback
 - Both respect `NEXT_PUBLIC_MOCK_AI=true` for offline demo
 
 ## Repro
 
-All scripts log to `ai-pipeline/runs/` and expect no local GPU for inference (Replicate + OpenAI calls).
+All scripts log to `ai-pipeline/runs/` and expect no local GPU for inference (Replicate + HF Inference calls).
