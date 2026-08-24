@@ -20,12 +20,12 @@ export function CameraView({
   const [stream, setStream] = useState<MediaStream | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [steadiness, setSteadiness] = useState(0.55);
-  const [statusMsg, setStatusMsg] = useState("Initializing camera...");
+  const [statusMsg, setStatusMsg] = useState("Initializing camera…");
   const [capturedUrl, setCapturedUrl] = useState<string | null>(null);
 
   const start = useCallback(async () => {
     setError(null);
-    setStatusMsg("Requesting camera...");
+    setStatusMsg("Requesting camera…");
     try {
       const s = await navigator.mediaDevices.getUserMedia({
         video: { facingMode: "user", width: { ideal: 720 }, height: { ideal: 1280 } },
@@ -54,7 +54,7 @@ export function CameraView({
           Array.from({ length: 33 }, (_, i) => ({ x: Math.random(), y: Math.random(), visibility: i % 7 === 0 ? 0.3 : 0.9 })),
           []
         );
-        setStatusMsg(clamped > 0.78 ? "Steady — ready to capture ✨" : evalRes.message);
+        setStatusMsg(clamped > 0.78 ? "Steady — ready to capture" : evalRes.message);
       }, 350);
       // store cleanup
       (videoRef.current as any)._steadinessInterval = id;
@@ -121,36 +121,37 @@ export function CameraView({
 
   return (
     <Card className="overflow-hidden">
-      <div className="bg-black flex justify-center">
-        <div className="relative bg-black aspect-[3/4] max-h-[420px] sm:max-h-[460px] w-full max-w-[315px] sm:max-w-[345px] shrink-0 overflow-hidden">
+      <div className="flex justify-center bg-[var(--color-dark-paper)]">
+        <div className="relative aspect-[3/4] max-h-[460px] w-full max-w-[345px] shrink-0 overflow-hidden bg-[var(--color-dark-paper)]">
         {/* video */}
         <video ref={videoRef} playsInline muted className={`h-full w-full object-cover scale-x-[-1] ${capturedUrl ? "hidden" : "block"}`} />
-        {capturedUrl && <img src={capturedUrl} alt="Captured" className="h-full w-full object-cover" />}
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        {capturedUrl && <img src={capturedUrl} alt="Captured frame" className="h-full w-full object-cover" />}
 
         {/* silhouette guide */}
         {!capturedUrl && (
           <div className="absolute inset-0 pointer-events-none flex items-center justify-center">
-            <div className="h-[82%] w-[56%] rounded-[3rem] border-2 border-white/30 border-dashed flex items-center justify-center">
-              <span className="text-[10px] tracking-widest text-white/60">FRAME GUIDE</span>
+            <div className="flex h-[82%] w-[56%] items-center justify-center border border-dashed border-[var(--color-rule-2)]">
+              <span className="font-outlier text-[10px] tracking-widest text-[var(--color-dark-ink)]">FRAME GUIDE</span>
             </div>
           </div>
         )}
 
         {/* top bar */}
         <div className="absolute top-3 left-3 right-3 flex items-center justify-between gap-2">
-          <Badge variant={steadiness > 0.78 ? "success" : steadiness > 0.5 ? "warning" : "secondary"} className="backdrop-blur">
-            {steadiness > 0.78 ? <CheckCircle2 className="h-3 w-3 mr-1" /> : <AlertTriangle className="h-3 w-3 mr-1" />}
+          <Badge variant={steadiness > 0.78 ? "success" : steadiness > 0.5 ? "warning" : "secondary"}>
+            {steadiness > 0.78 ? <CheckCircle2 aria-hidden="true" className="h-3 w-3 mr-1" /> : <AlertTriangle aria-hidden="true" className="h-3 w-3 mr-1" />}
             {Math.round(steadiness * 100)}% steady
           </Badge>
-          <span className="text-[11px] text-white/80 bg-black/40 backdrop-blur px-2.5 py-1 rounded-full border border-white/10 hidden sm:inline">
+          <span className="hidden border border-[var(--color-rule-2)] bg-[var(--color-dark-paper-2)] px-2.5 py-1 text-[11px] text-[var(--color-dark-ink)] sm:inline">
             MediaPipe Pose · client-side
           </span>
         </div>
 
         {/* bottom status */}
-        <div className="absolute bottom-0 left-0 right-0 p-3 bg-gradient-to-t from-black/70 to-transparent">
-          <div className="text-xs text-white/90">{statusMsg}</div>
-          <Progress value={steadiness * 100} className="mt-2 h-1.5 bg-white/20" />
+        <div className="absolute bottom-0 left-0 right-0 bg-[var(--color-dark-paper-2)] p-3">
+          <div className="text-xs text-[var(--color-dark-ink)]">{statusMsg}</div>
+          <Progress value={steadiness * 100} className="mt-2" />
         </div>
 
         <canvas ref={canvasRef} className="hidden" />
@@ -163,7 +164,7 @@ export function CameraView({
         ) : capturedUrl ? (
           <>
             <Button variant="outline" className="flex-1" onClick={retake} disabled={disabled}>
-              <RefreshCcw className="h-4 w-4" /> Retake
+              <RefreshCcw aria-hidden="true" className="h-4 w-4" /> Retake
             </Button>
             <Button variant="thread" className="flex-1" disabled={disabled} onClick={() => capturedUrl && onCapture(capturedUrl, steadiness)}>
               Use this frame
@@ -173,7 +174,7 @@ export function CameraView({
           <>
             <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleUpload} />
             <Button variant="outline" className="flex-1" onClick={() => fileInputRef.current?.click()} disabled={disabled}>
-              <Upload className="h-4 w-4" /> Upload
+              <Upload aria-hidden="true" className="h-4 w-4" /> Upload
             </Button>
             <Button
               variant="thread"
@@ -181,7 +182,7 @@ export function CameraView({
               onClick={capture}
               disabled={disabled || steadiness < 0.32}
             >
-              <Camera className="h-4 w-4" /> Capture
+              <Camera aria-hidden="true" className="h-4 w-4" /> Capture
             </Button>
           </>
         )}

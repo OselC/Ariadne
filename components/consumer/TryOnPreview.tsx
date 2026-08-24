@@ -1,7 +1,7 @@
 "use client";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Sparkles, Image as ImageIcon } from "lucide-react";
+import { Image as ImageIcon, ScanLine } from "lucide-react";
 
 export function TryOnPreview({
   resultUrl,
@@ -15,12 +15,10 @@ export function TryOnPreview({
   if (!resultUrl) {
     return (
       <Card className="border-dashed">
-        <CardContent className="p-10 text-center">
-          <div className="mx-auto h-12 w-12 rounded-2xl bg-muted flex items-center justify-center">
-            <ImageIcon className="h-6 w-6 text-muted-foreground" />
-          </div>
-          <div className="mt-3 text-sm font-medium">Try-on preview</div>
-          <div className="mt-1 text-xs text-muted-foreground">Your photorealistic render (IDM-VTON + LoRA) appears here.</div>
+        <CardContent className="p-6">
+          <ImageIcon aria-hidden="true" className="h-5 w-5 text-muted-foreground" />
+          <div className="mt-4 text-sm font-semibold">Try-on preview</div>
+          <div className="mt-1 text-xs leading-5 text-muted-foreground">The IDM-VTON render appears here after a frame and garment are ready.</div>
         </CardContent>
       </Card>
     );
@@ -32,8 +30,8 @@ export function TryOnPreview({
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src={resultUrl} alt="Virtual try-on result" className="h-full w-full object-cover" />
         <div className="absolute top-3 left-3 flex gap-2">
-          <Badge className="bg-[#0a0a0f] hover:bg-[#0a0a0f] text-white">
-            <Sparkles className="h-3 w-3 mr-1" /> IDM-VTON {mock ? "· mock" : ""}
+          <Badge className="border-[var(--color-dark-paper)] bg-[var(--color-dark-paper)] text-[var(--color-dark-ink)]">
+            <ScanLine aria-hidden="true" className="mr-1 h-3 w-3" /> IDM-VTON {mock ? "· mock" : ""}
           </Badge>
           {mock && <Badge variant="warning">Demo mode — set REPLICATE_API_TOKEN for real render</Badge>}
         </div>

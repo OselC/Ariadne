@@ -1,0 +1,76 @@
+/* Hallmark · pre-emit critique: P5 H5 E4 S5 R5 V5 */
+:root {
+  --color-paper: oklch(97% 0.010 74);
+  --color-paper-2: oklch(94% 0.014 72);
+  --color-paper-3: oklch(90% 0.016 70);
+  --color-ink: oklch(17% 0.014 30);
+  --color-ink-2: oklch(30% 0.018 30);
+  --color-rule: oklch(82% 0.018 65);
+  --color-rule-2: oklch(70% 0.020 55);
+  --color-muted: oklch(42% 0.018 35);
+  --color-neutral: oklch(34% 0.016 32);
+  --color-accent: oklch(50% 0.205 25);
+  --color-accent-dark: oklch(43% 0.190 25);
+  --color-accent-ink: oklch(98% 0.008 74);
+  --color-focus: oklch(55% 0.220 25);
+  --color-success: oklch(51% 0.125 152);
+  --color-success-soft: oklch(93% 0.035 152);
+  --color-warning: oklch(62% 0.130 72);
+  --color-warning-soft: oklch(94% 0.035 78);
+  --color-danger: oklch(54% 0.210 25);
+  --color-danger-soft: oklch(94% 0.032 25);
+  --color-dark-paper: oklch(19% 0.014 30);
+  --color-dark-paper-2: oklch(24% 0.016 30);
+  --color-dark-ink: oklch(95% 0.010 74);
+
+  --font-display: var(--font-playfair), ui-serif, serif;
+  --font-body: var(--font-inter), ui-sans-serif, sans-serif;
+  --font-outlier: ui-monospace, "SFMono-Regular", Menlo, monospace;
+
+  --space-3xs: 0.25rem;
+  --space-2xs: 0.5rem;
+  --space-xs: 0.75rem;
+  --space-sm: 1rem;
+  --space-md: 1.5rem;
+  --space-lg: 2rem;
+  --space-xl: 2.5rem;
+  --space-2xl: 4rem;
+  --space-3xl: 6rem;
+  --space-4xl: 9rem;
+
+  --text-xs: 0.75rem;
+  --text-sm: 0.875rem;
+  --text-base: 1rem;
+  --text-md: 1.25rem;
+  --text-lg: 1.5625rem;
+  --text-xl: 1.953rem;
+  --text-2xl: 2.441rem;
+  --text-3xl: 3.052rem;
+  --text-display: clamp(3rem, 7vw, 5.25rem);
+  --text-display-small: clamp(2.5rem, 5vw, 4rem);
+
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in: cubic-bezier(0.7, 0, 0.84, 0);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --dur-micro: 120ms;
+  --dur-short: 220ms;
+  --dur-long: 420ms;
+
+  --rule-hair: 1px;
+  --rule-fine: 2px;
+  --radius-card: 0.25rem;
+  --radius-pill: 999px;
+  --radius-input: 0.25rem;
+  --shadow-card: 0 1px 2px oklch(17% 0.014 30 / 0.06);
+  --page-gutter: clamp(1rem, 4vw, 3rem);
+  --page-width: 80rem;
+  --banner-height: 3.75rem;
+  --z-base: 1;
+  --z-raised: 10;
+  --z-dropdown: 100;
+  --z-sticky: 200;
+  --z-sticky-nav: 300;
+  --z-modal: 400;
+  --z-toast: 500;
+  --z-tooltip: 600;
+}

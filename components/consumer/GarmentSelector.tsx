@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
-import { Card, CardContent } from "@/components/ui/card";
+import { CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { cn, formatCurrencyIDR } from "@/lib/utils";
@@ -56,12 +56,12 @@ export function GarmentSelector({
     <div className="space-y-3">
       <div className="flex gap-2">
         <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input placeholder="Search Tanuki, LoveChara, Kebaya..." className="pl-9" value={q} onChange={(e) => setQ(e.target.value)} />
+          <Search aria-hidden="true" className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Input placeholder="Search Tanuki, LoveChara, Kebaya…" className="pl-9" value={q} onChange={(e) => setQ(e.target.value)} />
         </div>
       </div>
 
-      <div className="flex gap-1.5 overflow-x-auto pb-1 scrollbar-thin">
+      <div className="flex gap-1.5 overflow-x-auto pb-1 scrollbar-thin" aria-label="Garment categories">
         {[
           ["all", "All"],
           ["upper_body", "Tops"],
@@ -74,7 +74,7 @@ export function GarmentSelector({
             key={val}
             onClick={() => setFilter(val)}
             className={cn(
-              "shrink-0 rounded-full px-3.5 py-1.5 text-xs font-medium border transition-colors",
+              "min-h-11 shrink-0 rounded-[var(--radius-input)] border px-3.5 text-xs font-medium transition-[background-color,color,transform] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring active:translate-y-px disabled:cursor-not-allowed disabled:opacity-55",
               filter === val ? "bg-primary text-primary-foreground border-primary" : "bg-background hover:bg-muted"
             )}
           >
@@ -86,42 +86,45 @@ export function GarmentSelector({
       {loading ? (
         <div className="grid grid-cols-2 gap-3">
           {[1, 2, 4, 4].map((_, i) => (
-            <div key={i} className="h-48 rounded-2xl bg-muted animate-pulse" />
+            <div key={i} className="h-48 bg-muted animate-pulse" />
           ))}
         </div>
       ) : (
         <div className="grid grid-cols-2 gap-3">
           {products.map((p) => (
-            <Card
+            <button
+              type="button"
               key={p.id}
               onClick={() => onSelect(p)}
+              aria-pressed={selectedId === p.id}
+              aria-label={`Select ${p.name} by ${p.brand}`}
               className={cn(
-                "overflow-hidden cursor-pointer transition-all hover:shadow-md group",
-                selectedId === p.id && "ring-2 ring-primary shadow-md"
+                "group overflow-hidden rounded-[var(--radius-card)] border bg-card text-left text-card-foreground transition-[background-color,transform] hover:bg-secondary focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring active:translate-y-px disabled:cursor-not-allowed disabled:opacity-55",
+                selectedId === p.id && "border-primary outline outline-1 outline-primary"
               )}
             >
               <div className="aspect-[4/5] overflow-hidden bg-muted relative">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={p.image_url} alt={p.name} className="h-full w-full object-cover group-hover:scale-[1.02] transition-transform" />
+                <img src={p.image_url} alt="" className="h-full w-full object-cover" />
                 <Badge className="absolute top-2 left-2 text-[10px] px-1.5 py-0.5">{p.stretch_level} stretch</Badge>
               </div>
               <CardContent className="p-3">
                 <div className="text-xs text-muted-foreground flex items-center gap-1">
-                  <Shirt className="h-3 w-3" /> {p.brand}
+                  <Shirt aria-hidden="true" className="h-3 w-3" /> {p.brand}
                 </div>
-                <div className="text-sm font-semibold leading-tight line-clamp-2 mt-0.5">{p.name}</div>
+                <div className="mt-0.5 truncate text-sm font-semibold leading-tight" title={p.name}>{p.name}</div>
                 <div className="mt-1 flex items-center justify-between">
                   <span className="text-xs font-bold">{formatCurrencyIDR(p.price)}</span>
                   <span className="text-[10px] text-muted-foreground capitalize">{p.fabric}</span>
                 </div>
               </CardContent>
-            </Card>
+            </button>
           ))}
         </div>
       )}
 
       {!loading && products.length === 0 && (
-        <div className="rounded-2xl border border-dashed p-8 text-center text-sm text-muted-foreground">
+        <div className="border border-dashed p-8 text-center text-sm text-muted-foreground">
           No garments match. Try another brand or category.
         </div>
       )}

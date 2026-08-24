@@ -1,15 +1,20 @@
 "use client";
+
 import { useState } from "react";
+import { ArrowRight, Loader2, ScanLine, ShoppingBag, Wand2 } from "lucide-react";
 import { CameraView } from "@/components/consumer/CameraView";
 import { GarmentSelector } from "@/components/consumer/GarmentSelector";
 import { FitAnalysisCard, type FitAnalysis } from "@/components/consumer/FitAnalysisCard";
 import { TryOnPreview } from "@/components/consumer/TryOnPreview";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { Sparkles, Wand2, Loader2, ShoppingBag, ArrowRight } from "lucide-react";
 import { formatCurrencyIDR } from "@/lib/utils";
+
+/* Hallmark · genre: editorial · macrostructure: Workbench · design-system: design.md · designed-as-app
+ * panes: camera=4 · catalogue=5 · output=3 · F3 specs=key/value/unit
+ * enrichment: none · nav: N9 · footer: Ft4
+ */
 
 type Product = any;
 
@@ -47,10 +52,10 @@ export default function TryOnPage() {
       const json = await res.json();
       if (json.error) throw new Error(json.error);
       setAnalysis(json.analysis);
-      setMockFlags((m) => ({ ...m, fit: json.mock }));
+      setMockFlags((current) => ({ ...current, fit: json.mock }));
       if (json.analysis?.recommended_size) setSelectedSize(json.analysis.recommended_size);
-    } catch (e: any) {
-      alert(e.message);
+    } catch (error: any) {
+      alert(error.message);
     } finally {
       setAnalyzing(false);
     }
@@ -76,123 +81,133 @@ export default function TryOnPage() {
       const json = await res.json();
       if (json.error) throw new Error(json.error);
       setResultUrl(json.resultUrl);
-      setMockFlags((m) => ({ ...m, vton: json.mock }));
-    } catch (e: any) {
-      alert(e.message);
+      setMockFlags((current) => ({ ...current, vton: json.mock }));
+    } catch (error: any) {
+      alert(error.message);
     } finally {
       setTrying(false);
     }
   };
 
   return (
-    <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div>
-          <h1 className="font-display text-2xl sm:text-3xl font-bold tracking-tight flex items-center gap-2">
-            <span className="inline-flex h-8 w-8 items-center justify-center rounded-xl bg-gradient-to-br from-[#e63946] to-[#d4a574] text-white">
-              <Sparkles className="h-4 w-4" />
-            </span>
-            Live Try-On
-          </h1>
-          <p className="mt-1 text-sm text-muted-foreground">
-            Layer 1: GPT Vision (fit) · Layer 2: IDM-VTON + LoRA (render) · MediaPipe Pose (steadiness)
+    <div className="page-shell py-10 sm:py-12">
+      <header className="grid gap-5 border-b pb-8 lg:grid-cols-12">
+        <div className="lg:col-span-7">
+          <h1 className="text-3xl font-bold tracking-[-0.025em] sm:text-4xl">Live try-on workbench</h1>
+          <p className="mt-3 max-w-2xl leading-7 text-muted-foreground">
+            Frame the body, choose a garment, then compare fit analysis with the rendered result.
           </p>
         </div>
-        <Badge variant="outline" className="rounded-full">Hybrid AI · No local GPU · Supabase logs</Badge>
-      </div>
+        <div className="self-end text-sm text-muted-foreground lg:col-span-5 lg:text-right">
+          MediaPipe Pose · GPT Vision · IDM-VTON · Supabase
+        </div>
+      </header>
 
-      <div className="mt-6 grid gap-6 lg:grid-cols-12">
-        {/* Left: Camera */}
-        <div className="lg:col-span-4 space-y-3">
-          <div className="text-xs font-semibold tracking-widest text-muted-foreground">CAMERA — MediaPipe</div>
+      <div className="mt-8 grid min-w-0 gap-8 lg:grid-cols-12 lg:gap-6">
+        <section className="min-w-0 space-y-4 lg:col-span-4" aria-labelledby="camera-heading">
+          <div className="border-b pb-3">
+            <h2 id="camera-heading" className="text-xl font-bold">Frame</h2>
+          </div>
           <CameraView onCapture={handleCapture} disabled={analyzing || trying} />
           {frame && (
-            <Card className="border-emerald-200 bg-emerald-50 dark:bg-emerald-950/20">
-              <CardContent className="p-3 text-xs flex items-center gap-2">
-                <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" /> Frame captured — steadiness {Math.round(steadiness * 100)}% · Base64 ready for AI layers
-              </CardContent>
-            </Card>
+            <div className="flex items-center justify-between gap-3 border border-[var(--color-success)] bg-[var(--color-success-soft)] p-3 text-xs tnum">
+              <span>Frame ready for both AI layers</span>
+              <span className="font-semibold">{Math.round(steadiness * 100)}% steady</span>
+            </div>
           )}
-        </div>
+        </section>
 
-        {/* Middle: Catalog */}
-        <div className="lg:col-span-4 space-y-3">
-          <div className="text-xs font-semibold tracking-widest text-muted-foreground">CATALOG — Supabase</div>
-          <GarmentSelector selectedId={selected?.id ?? null} onSelect={(p) => setSelected(p)} />
+        <section className="min-w-0 space-y-4 lg:col-span-5" aria-labelledby="catalogue-heading">
+          <div className="border-b pb-3">
+            <h2 id="catalogue-heading" className="text-xl font-bold">Choose</h2>
+          </div>
+          <GarmentSelector selectedId={selected?.id ?? null} onSelect={(product) => setSelected(product)} />
 
           {selected && (
-            <Card className="overflow-hidden">
-              <CardContent className="p-4 space-y-3">
-                <div className="flex gap-3">
+            <Card>
+              <CardContent className="space-y-5 p-5">
+                <div className="flex gap-4">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={selected.image_url} alt={selected.name} className="h-20 w-20 rounded-xl object-cover border" />
+                  <img src={selected.image_url} alt={selected.name} className="h-24 w-20 shrink-0 object-cover" />
                   <div className="min-w-0">
-                    <div className="text-xs text-muted-foreground">{selected.brand}</div>
-                    <div className="text-sm font-bold leading-tight">{selected.name}</div>
-                    <div className="text-xs mt-1">{formatCurrencyIDR(selected.price)}</div>
-                    <div className="text-[11px] text-muted-foreground">{selected.fabric} · {selected.stretch_level} stretch</div>
+                    <div className="text-sm text-muted-foreground">{selected.brand}</div>
+                    <div className="mt-1 text-base font-bold leading-tight">{selected.name}</div>
+                    <div className="mt-2 text-sm font-semibold tnum">{formatCurrencyIDR(selected.price)}</div>
+                    <div className="mt-1 text-xs text-muted-foreground">{selected.fabric} · {selected.stretch_level} stretch</div>
                   </div>
                 </div>
                 <Separator />
                 <div>
-                  <div className="text-xs font-semibold mb-2">Select size</div>
-                  <div className="flex gap-1.5 flex-wrap">
-                    {Object.keys(selected.size_chart ?? { S: {}, M: {}, L: {} }).map((sz) => (
+                  <div className="mb-2 text-sm font-semibold">Select size</div>
+                  <div className="flex flex-wrap gap-2">
+                    {Object.keys(selected.size_chart ?? { S: {}, M: {}, L: {} }).map((size) => (
                       <button
-                        key={sz}
-                        onClick={() => setSelectedSize(sz)}
-                        className={`rounded-xl border px-4 py-2 text-sm font-semibold transition-colors ${selectedSize === sz ? "bg-primary text-primary-foreground border-primary" : "hover:bg-muted"}`}
+                        key={size}
+                        onClick={() => setSelectedSize(size)}
+                        aria-pressed={selectedSize === size}
+                        className={`min-h-11 min-w-11 border px-4 text-sm font-semibold transition-[background-color,color,transform] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring active:translate-y-px disabled:cursor-not-allowed disabled:opacity-55 ${selectedSize === size ? "border-primary bg-primary text-primary-foreground" : "hover:bg-secondary"}`}
                       >
-                        {sz}
+                        {size}
                       </button>
                     ))}
                   </div>
-                  <div className="mt-2 text-[11px] text-muted-foreground">
-                    Chest {selected.size_chart?.[selectedSize]?.chest ?? "—"} · Waist {selected.size_chart?.[selectedSize]?.waist ?? "—"} · Length {selected.size_chart?.[selectedSize]?.length ?? "—"} cm
-                  </div>
+                  <dl className="mt-4 grid grid-cols-3 border-y py-3 text-xs tnum">
+                    {[
+                      ["Chest", selected.size_chart?.[selectedSize]?.chest],
+                      ["Waist", selected.size_chart?.[selectedSize]?.waist],
+                      ["Length", selected.size_chart?.[selectedSize]?.length],
+                    ].map(([label, value]) => (
+                      <div key={label} className="border-l px-3 first:border-l-0 first:pl-0">
+                        <dt className="text-muted-foreground">{label}</dt>
+                        <dd className="mt-1 font-semibold">{value ?? "—"} cm</dd>
+                      </div>
+                    ))}
+                  </dl>
                 </div>
-                <div className="grid grid-cols-2 gap-2">
-                  <Button variant="outline" onClick={runAnalysis} disabled={!frame || analyzing || trying}>
-                    {analyzing ? <Loader2 className="h-4 w-4 animate-spin" /> : <Wand2 className="h-4 w-4" />}
-                    {analyzing ? "Analyzing..." : "Fit Analysis"}
+                <div className="grid gap-2 sm:grid-cols-2">
+                  <Button variant="outline" onClick={runAnalysis} disabled={!frame || analyzing || trying} data-state={analyzing ? "loading" : undefined}>
+                    {analyzing ? <Loader2 aria-hidden="true" className="h-4 w-4 animate-spin" /> : <Wand2 aria-hidden="true" className="h-4 w-4" />}
+                    {analyzing ? "Analyzing…" : "Analyze fit"}
                   </Button>
-                  <Button variant="thread" onClick={runTryOn} disabled={!frame || trying || analyzing}>
-                    {trying ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
-                    {trying ? "Rendering..." : "Virtual Try-On"}
+                  <Button variant="thread" onClick={runTryOn} disabled={!frame || trying || analyzing} data-state={trying ? "loading" : undefined}>
+                    {trying ? <Loader2 aria-hidden="true" className="h-4 w-4 animate-spin" /> : <ScanLine aria-hidden="true" className="h-4 w-4" />}
+                    {trying ? "Rendering…" : "Render try-on"}
                   </Button>
                 </div>
-                <div className="text-[11px] text-muted-foreground">
-                  Both layers run in parallel — GPT-4o parses fit while IDM-VTON renders drape.
-                </div>
+                <p className="text-xs leading-5 text-muted-foreground">Fit analysis and rendering may run independently; each result remains visible when the other finishes.</p>
               </CardContent>
             </Card>
           )}
-        </div>
+        </section>
 
-        {/* Right: Results */}
-        <div className="lg:col-span-4 space-y-4">
-          <div className="text-xs font-semibold tracking-widest text-muted-foreground">OUTPUT</div>
-
+        <section className="min-w-0 space-y-5 lg:col-span-3" aria-labelledby="output-heading">
+          <div className="border-b pb-3">
+            <h2 id="output-heading" className="text-xl font-bold">Compare</h2>
+          </div>
           <FitAnalysisCard analysis={analysis} selectedSize={selectedSize} />
-          {mockFlags.fit && <div className="text-[11px] text-muted-foreground text-center">Mock fit — set OPENAI_API_KEY for live GPT-4o</div>}
-
+          {mockFlags.fit && <p className="text-xs leading-5 text-muted-foreground">Demo fit data · add `OPENAI_API_KEY` for live analysis.</p>}
           <TryOnPreview resultUrl={resultUrl} garmentUrl={selected?.image_url} mock={mockFlags.vton} />
 
           {(analysis || resultUrl) && (
-            <Card className="bg-[#0a0a0f] text-white border-0 overflow-hidden">
-              <CardContent className="p-4 flex gap-3 items-center">
-                <ShoppingBag className="h-5 w-5 text-[#d4a574]" />
-                <div className="flex-1 min-w-0">
-                  <div className="text-sm font-semibold">Confident to checkout?</div>
-                  <div className="text-xs text-white/70">Ariadne reduces return requests — you help MSMEs cut double-shipping.</div>
+            <Card className="border-[var(--color-dark-paper)] bg-[var(--color-dark-paper)] text-[var(--color-dark-ink)]">
+              <CardContent className="space-y-4 p-4">
+                <ShoppingBag aria-hidden="true" className="h-5 w-5 text-[var(--color-dark-ink)]" />
+                <div>
+                  <div className="text-sm font-semibold">Ready to continue?</div>
+                  <div className="mt-1 text-xs leading-5">Checkout logs the purchase outcome for merchant analysis.</div>
                 </div>
-                <Button variant="thread" size="sm" onClick={() => alert("Checkout flow: would log purchase event to Supabase analytics_events. Demo stops here.")}>
-                  Checkout <ArrowRight className="h-3.5 w-3.5" />
+                <Button
+                  variant="thread"
+                  size="sm"
+                  className="w-full"
+                  onClick={() => alert("Checkout flow: would log purchase event to Supabase analytics_events. Demo stops here.")}
+                >
+                  Checkout <ArrowRight aria-hidden="true" className="h-3.5 w-3.5" />
                 </Button>
               </CardContent>
             </Card>
           )}
-        </div>
+        </section>
       </div>
     </div>
   );
