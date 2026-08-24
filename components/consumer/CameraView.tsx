@@ -92,7 +92,14 @@ export function CameraView({
     setCapturedUrl(dataUrl);
     onCapture(dataUrl, steadiness);
     setCountdown(null);
-  }, [onCapture, steadiness]);
+    const currentStream = stream ?? (videoRef.current?.srcObject as MediaStream | null);
+    if (currentStream) currentStream.getTracks().forEach((tr) => tr.stop());
+    if (videoRef.current && (videoRef.current as any)._steadinessInterval) {
+      clearInterval((videoRef.current as any)._steadinessInterval);
+    }
+    setStream(null);
+    setStatusMsg("Photo captured — camera off");
+  }, [onCapture, steadiness, stream]);
 
   const retake = () => {
     setCapturedUrl(null);
@@ -114,7 +121,13 @@ export function CameraView({
       const dataUrl = reader.result as string;
       setCapturedUrl(dataUrl);
       onCapture(dataUrl, 0.95);
-      setStatusMsg("Uploaded image ready");
+      setStatusMsg("Uploaded image ready — camera off");
+      const currentStream = stream ?? (videoRef.current?.srcObject as MediaStream | null);
+      if (currentStream) currentStream.getTracks().forEach((tr) => tr.stop());
+      if (videoRef.current && (videoRef.current as any)._steadinessInterval) {
+        clearInterval((videoRef.current as any)._steadinessInterval);
+      }
+      setStream(null);
     };
     reader.readAsDataURL(file);
     e.target.value = "";
