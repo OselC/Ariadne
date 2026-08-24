@@ -1,10 +1,10 @@
-# Ariadne
+# Ariadne — FitVision AI
 
-> **“The digital thread to your perfect fit.”**
+> **“The digital thread to your perfect fit.”** Guiding you through the fashion labyrinth.
 
 Smart Commerce & Return-Prevention Ecosystem for fashion e-commerce. Combines **Real-Time Body & Fabric Analysis** with **Virtual Try-On (VTON)** to eliminate sizing uncertainty, while giving merchants **Supply Chain Insights** that cut return costs & deadstock.
 
-For **COMPFEST AIC — AI for the Backbone of the Economy** · Smart Commerce
+For **COMPFEST AIC — AI for the Backbone of the Economy** · Primary: Smart Commerce · Secondary: Smart Logistics.
 
 ---
 
@@ -12,7 +12,7 @@ For **COMPFEST AIC — AI for the Backbone of the Economy** · Smart Commerce
 
 ```
 Live Smartphone Camera
-   ├─ Layer 1: GPT Vision (Intelligence Engine)  → parses body proportions, size chart, fabric stretch → fit risk JSON
+   ├─ Layer 1: Hugging Face Vision (Intelligence Engine) → parses body proportions, size chart, fabric stretch → fit risk JSON
    └─ Layer 2: IDM-VTON / Flux + Custom LoRA     → photoreal garment draping
 MediaPipe Pose (client) → steadiness gate → clean Base64 frame
             ↓                         ↓
@@ -20,11 +20,11 @@ MediaPipe Pose (client) → steadiness gate → clean Base64 frame
     Merchant: Return Risk & Sizing Demand Analytics (Supabase)
 ```
 
-**No local GPU needed** — orchestrate Replicate + OpenAI from Next.js API routes.
+**No local GPU needed** — orchestrate Replicate + Hugging Face Inference from Next.js API routes.
 
 | Component | Technology | Purpose |
 |-----------|------------|---------|
-| Intelligence Engine | GPT-4o Vision API | Live frame analysis, body proportions, size chart parse, fit risk |
+| Intelligence Engine | Hugging Face Inference API (Qwen2-VL / LLaVA) | Live frame analysis, body proportions, size chart parse, fit risk |
 | Rendering + Fine-Tuning | IDM-VTON / Flux + Custom LoRA / YOLOv8 | Fine-tuned on 20–50 multi-angle local fashion images; YOLOv8 for fit anomalies |
 | Real-time Camera/Pose | MediaPipe Pose (JS) | Client-side tracking — ensure steady pose before sending frame |
 | Frontend | Next.js 14 + Tailwind + shadcn/ui | Consumer try-on flow + Merchant dashboard (Tremor/Recharts) |
@@ -34,6 +34,8 @@ MediaPipe Pose (client) → steadiness gate → clean Base64 frame
 
 ## Quick Start
 
+> **Do not auto-install** — run manually as requested.
+
 ```bash
 # 1. install (you run manually)
 npm install
@@ -41,7 +43,7 @@ npm install
 # 2. env
 cp .env.example .env.local
 # fill: NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_ANON_KEY,
-#       SUPABASE_SERVICE_ROLE_KEY, OPENAI_API_KEY, REPLICATE_API_TOKEN
+#       SUPABASE_SERVICE_ROLE_KEY, HF_TOKEN, REPLICATE_API_TOKEN
 # For demo without keys:
 #   NEXT_PUBLIC_MOCK_AI=true
 
@@ -54,16 +56,16 @@ npm run dev   # → http://localhost:3000
 
 Open `/try-on` for consumer flow, `/dashboard` for merchant analytics.
 
-**Mock mode:** `NEXT_PUBLIC_MOCK_AI=true` bypasses OpenAI/Replicate with realistic fixtures.
+**Mock mode:** `NEXT_PUBLIC_MOCK_AI=true` bypasses Hugging Face/Replicate with realistic fixtures — perfect for hackathon demo without keys/billing.
 
 ---
 
 ## Routes
 
 - `/` — Landing (myth, architecture diagram, value props)
-- `/try-on` — Live camera (MediaPipe) → Garment catalog (Supabase) → Fit Analysis (GPT-4o) → VTON render (Replicate)
+- `/try-on` — Live camera (MediaPipe) → Garment catalog (Supabase) → Fit Analysis (Hugging Face Qwen2-VL) → VTON render (Replicate)
 - `/dashboard` — B2B portal: return rate, conversion uplift, RTO saved (IDR), sizing demand, weekly trends, fit risk split, inventory recs
-- `POST /api/analyze-fit` — `{ imageBase64, productId, selectedSize }` → fit JSON
+- `POST /api/analyze-fit` — `{ imageBase64, productId, selectedSize }` → fit JSON (via Hugging Face Inference)
 - `POST /api/virtual-tryon` — `{ humanImage, garmentImage, productId, category }` → resultUrl
 - `GET /api/catalog?category=&q=` — Supabase `products` with fallback fixtures
 - `GET /api/analytics` — KPIs + charts from `analytics_events`
@@ -81,6 +83,7 @@ See `supabase/schema.sql` & `seed.sql`.
 - `ai-pipeline/lora/train_lora.py` — Fashion LoRA on SDXL/FLUX via Kohya_ss or `accelerate launch ...` (see README inside)
 - `ai-pipeline/yolov8/train_yolo.py` — YOLOv8 detector for `tight_shoulder, waist_gap, fabric_pulling, seam_strain`
 - `ai-pipeline/eval/compare.py` — Before/After collage for pitch deck + W&B/TensorBoard loss curves
+- `ai-pipeline/lora/Ariadne_LoRA_Training.ipynb` — One-click Colab notebook (free T4)
 
 Dataset curation (20–50 multi-angle): lovechara.work, tumblr artist-refs, @LolitaWardrobe, tanuki-kimono, brand sites.
 
@@ -88,10 +91,16 @@ Dataset curation (20–50 multi-angle): lovechara.work, tumblr artist-refs, @Lol
 
 | Role | PIC |
 |------|-----|
-| Frontend Lead | Sergio Winnero |
+| Frontend Lead | Sergio |
 | Backend & Integration Lead | Vincent |
-| AI Pipeline & Fine-Tuning Lead | Osel Citta Chen |
-| Merchant Dashboard Lead | Louis Alexander Pekandi |
-| Product & Pitch Lead | Putri Khairani Azzahra |
+| AI Pipeline & Fine-Tuning Lead | Osel |
+| Merchant Dashboard Lead | Louis |
+| Product & Pitch Lead | Kay 🎀 |
 
-Stack: Next.js, Tailwind, shadcn/ui, Supabase, OpenAI, Replicate, MediaPipe, LoRA, YOLOv8.
+## Tagline Origins
+
+*Ariadne gave Theseus a red thread to escape the labyrinth.* The **Fabric Thread** (weaving) + **Tech Thread** (live data threads) — our AI weaves garments onto your moving body with mathematical precision.
+
+---
+
+Built for COMPFEST AIC. Stack: Next.js, Tailwind, shadcn/ui, Supabase, Hugging Face, Replicate, MediaPipe, LoRA, YOLOv8.

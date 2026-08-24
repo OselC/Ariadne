@@ -99,6 +99,7 @@ export default function LandingPage() {
             </p>
           </div>
 
+<<<<<<< HEAD
           <ol className="mt-14 border-t">
             {stages.map(({ number, verb, title, body, Icon, details }) => (
               <li key={number} className="grid gap-8 border-b py-12 lg:grid-cols-12 lg:gap-10 lg:py-16">
@@ -106,6 +107,22 @@ export default function LandingPage() {
                   <div className="text-sm font-semibold text-primary">{number} · {verb}</div>
                   <h3 className="mt-3 max-w-2xl text-3xl font-bold tracking-[-0.025em] sm:text-4xl">{title}</h3>
                   <p className="mt-5 max-w-2xl text-base leading-7 text-[var(--color-ink-2)]">{body}</p>
+=======
+          {/* Architecture diagram card */}
+          <div className="mt-10 lg:absolute lg:right-8 lg:top-24 lg:w-[420px]">
+            <Card className="bg-white/95 backdrop-blur border-0 shadow-2xl overflow-hidden">
+              <div className="bg-[#0a0a0f] text-white p-4">
+                <div className="text-xs tracking-widest opacity-60">HYBRID AI ARCHITECTURE</div>
+                <div className="mt-2 grid grid-cols-2 gap-2 text-xs">
+                  <div className="rounded-xl bg-white/10 border border-white/10 p-3">
+                    <div className="font-semibold flex items-center gap-1.5"><ScanLine className="h-3.5 w-3.5 text-[#e63946]" /> Layer 1: HF Vision</div>
+                    <div className="opacity-70 mt-1">Parses body proportions, size charts & fabric stretch</div>
+                  </div>
+                  <div className="rounded-xl bg-white/10 border border-white/10 p-3">
+                    <div className="font-semibold flex items-center gap-1.5"><Shirt className="h-3.5 w-3.5 text-[#d4a574]" /> Layer 2: VTON</div>
+                    <div className="opacity-70 mt-1">IDM-VTON + LoRA — photoreal draping</div>
+                  </div>
+>>>>>>> 5a7db915e115651f6f2c9ba1a9b7d1a72487932b
                 </div>
                 <div className="border-t pt-5 lg:col-span-5 lg:border-l lg:border-t-0 lg:pl-8 lg:pt-0">
                   <Icon aria-hidden="true" className="h-5 w-5 text-primary" />
@@ -115,6 +132,7 @@ export default function LandingPage() {
                     ))}
                   </ul>
                 </div>
+<<<<<<< HEAD
               </li>
             ))}
           </ol>
@@ -137,6 +155,13 @@ export default function LandingPage() {
               <h3 className="mt-5 text-2xl font-bold">For merchants</h3>
               <p className="mt-3 leading-7 text-muted-foreground">Read return risk by SKU and size, then use demand evidence to revise grading and inventory.</p>
             </article>
+=======
+              </div>
+              <CardContent className="p-4 text-xs text-muted-foreground">
+                Live Smartphone Camera → MediaPipe Pose (steadiness) → Base64 → Hugging Face + Replicate in parallel
+              </CardContent>
+            </Card>
+>>>>>>> 5a7db915e115651f6f2c9ba1a9b7d1a72487932b
           </div>
         </div>
       </section>
@@ -152,6 +177,42 @@ export default function LandingPage() {
             Fabric thread and data thread meet in one decision: what fits, what to buy, and what merchants should change next.
           </p>
         </div>
+<<<<<<< HEAD
+=======
+
+        <div className="mt-10 grid gap-6 md:grid-cols-3">
+          {[
+            {
+              icon: Camera,
+              title: "1. Stand steady",
+              desc: "MediaPipe Pose checks you’re framed & steady in browser — no app needed. Clean frame sent as Base64.",
+              color: "from-violet-500 to-indigo-500",
+            },
+            {
+              icon: Ruler,
+              title: "2. Fit intelligence",
+              desc: "Hugging Face Qwen2-VL parses body proportions, reads the brand’s size chart, factors fabric stretch → fit risk & recommended size.",
+              color: "from-[#e63946] to-[#c1121f]",
+            },
+            {
+              icon: Shirt,
+              title: "3. Wear it, before you buy it",
+              desc: "IDM-VTON + custom LoRA renders photoreal draping for that exact cut — local fashion textures base models miss.",
+              color: "from-[#d4a574] to-amber-600",
+            },
+          ].map((step) => (
+            <Card key={step.title} className="overflow-hidden group hover:shadow-lg transition-shadow">
+              <CardContent className="p-6">
+                <div className={`h-10 w-10 rounded-xl bg-gradient-to-br ${step.color} flex items-center justify-center text-white`}>
+                  <step.icon className="h-5 w-5" />
+                </div>
+                <div className="mt-4 font-semibold">{step.title}</div>
+                <p className="mt-2 text-sm text-muted-foreground leading-relaxed">{step.desc}</p>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+>>>>>>> 5a7db915e115651f6f2c9ba1a9b7d1a72487932b
       </section>
 
       <section className="page-shell flex flex-col gap-7 py-20 sm:flex-row sm:items-end sm:justify-between sm:py-24">

@@ -90,12 +90,26 @@ export default function TryOnPage() {
   };
 
   return (
+<<<<<<< HEAD
     <div className="page-shell py-10 sm:py-12">
       <header className="grid gap-5 border-b pb-8 lg:grid-cols-12">
         <div className="lg:col-span-7">
           <h1 className="text-3xl font-bold tracking-[-0.025em] sm:text-4xl">Live try-on workbench</h1>
           <p className="mt-3 max-w-2xl leading-7 text-muted-foreground">
             Frame the body, choose a garment, then compare fit analysis with the rendered result.
+=======
+    <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div>
+          <h1 className="font-display text-2xl sm:text-3xl font-bold tracking-tight flex items-center gap-2">
+            <span className="inline-flex h-8 w-8 items-center justify-center rounded-xl bg-gradient-to-br from-[#e63946] to-[#d4a574] text-white">
+              <Sparkles className="h-4 w-4" />
+            </span>
+            Live Try-On
+          </h1>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Layer 1: HF Vision (fit) · Layer 2: IDM-VTON + LoRA (render) · MediaPipe Pose (steadiness)
+>>>>>>> 5a7db915e115651f6f2c9ba1a9b7d1a72487932b
           </p>
         </div>
         <div className="self-end text-sm text-muted-foreground lg:col-span-5 lg:text-right">
@@ -174,7 +188,13 @@ export default function TryOnPage() {
                     {trying ? "Rendering…" : "Render try-on"}
                   </Button>
                 </div>
+<<<<<<< HEAD
                 <p className="text-xs leading-5 text-muted-foreground">Fit analysis and rendering may run independently; each result remains visible when the other finishes.</p>
+=======
+                <div className="text-[11px] text-muted-foreground">
+                  Both layers run in parallel — HF Vision parses fit while IDM-VTON renders drape.
+                </div>
+>>>>>>> 5a7db915e115651f6f2c9ba1a9b7d1a72487932b
               </CardContent>
             </Card>
           )}
@@ -185,7 +205,12 @@ export default function TryOnPage() {
             <h2 id="output-heading" className="text-xl font-bold">Compare</h2>
           </div>
           <FitAnalysisCard analysis={analysis} selectedSize={selectedSize} />
+<<<<<<< HEAD
           {mockFlags.fit && <p className="text-xs leading-5 text-muted-foreground">Demo fit data · add `OPENAI_API_KEY` for live analysis.</p>}
+=======
+          {mockFlags.fit && <div className="text-[11px] text-muted-foreground text-center">Mock fit — set HF_TOKEN for live Hugging Face</div>}
+
+>>>>>>> 5a7db915e115651f6f2c9ba1a9b7d1a72487932b
           <TryOnPreview resultUrl={resultUrl} garmentUrl={selected?.image_url} mock={mockFlags.vton} />
 
           {(analysis || resultUrl) && (

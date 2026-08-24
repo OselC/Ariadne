@@ -20,8 +20,7 @@ export async function runIDMVTON(input: VTONInput): Promise<string> {
   const replicate = getReplicate();
   if (!replicate) throw new Error("REPLICATE_API_TOKEN not configured");
 
-  // Using yisol/idm-vton - update version hash as needed
-  const output = (await replicate.run("yisol/idm-vton:77525d43a039cc42a1a937ece3b24c3d60bc3836e03d9fa78397f2ee367016d38", {
+  const output = (await replicate.run("yisol/idm-vton" as any, {
     input: {
       garm_img: input.garmentImage,
       human_img: input.humanImage,

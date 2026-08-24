@@ -23,16 +23,24 @@ export async function POST(req: NextRequest) {
     const useMock = process.env.NEXT_PUBLIC_MOCK_AI === "true" || !process.env.REPLICATE_API_TOKEN;
 
     let resultUrl: string;
+    let isMock = useMock;
     if (useMock) {
       await new Promise((r) => setTimeout(r, 1800));
       resultUrl = mockVTONResult(garmentImage);
     } else {
-      resultUrl = await runIDMVTON({
-        humanImage,
-        garmentImage,
-        category: category ?? "upper_body",
-        garmentDescription,
-      });
+      try {
+        resultUrl = await runIDMVTON({
+          humanImage,
+          garmentImage,
+          category: category ?? "upper_body",
+          garmentDescription,
+        });
+      } catch (err: any) {
+        console.warn("Replicate VTON failed, falling back to mock:", err?.message);
+        await new Promise((r) => setTimeout(r, 800));
+        resultUrl = mockVTONResult(garmentImage);
+        isMock = true;
+      }
     }
 
     // Persist session if Supabase configured
@@ -47,7 +55,7 @@ export async function POST(req: NextRequest) {
       } catch {}
     }
 
-    return NextResponse.json({ resultUrl, mock: useMock });
+    return NextResponse.json({ resultUrl, mock: isMock });
   } catch (e: any) {
     console.error("virtual-tryon error", e);
     return NextResponse.json({ error: e.message ?? "VTON failed" }, { status: 500 });
