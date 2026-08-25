@@ -20,14 +20,14 @@ export function InventoryRecs({ sizingDemand, returnsByCategory }: { sizingDeman
         </CardHeader>
         <CardContent className="space-y-3 text-sm">
           <div className="flex gap-3 border-t py-4 first:border-t-0">
-            <TrendingUp aria-hidden="true" className="mt-0.5 h-4 w-4 shrink-0 text-[var(--color-success)]" />
+            <TrendingUp aria-hidden="true" className="mt-1 h-4 w-4 shrink-0 text-[var(--color-success)]" />
             <div>
               <div className="font-semibold">Review stock depth: Size {topDemand?.size} — highest demand ({topDemand?.demand})</div>
               <div className="text-muted-foreground mt-1">Review the next purchase order against demand and return ratio before increasing depth.</div>
             </div>
           </div>
           <div className="flex gap-3 border-t py-4">
-            <AlertCircle aria-hidden="true" className="mt-0.5 h-4 w-4 shrink-0 text-[var(--color-warning)]" />
+            <AlertCircle aria-hidden="true" className="mt-1 h-4 w-4 shrink-0 text-[var(--color-warning)]" />
             <div>
               <div className="font-semibold">Re-grade: Size {topReturnSize?.size} — highest return ratio</div>
               <div className="text-muted-foreground mt-1">

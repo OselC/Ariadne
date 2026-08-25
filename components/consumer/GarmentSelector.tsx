@@ -125,7 +125,7 @@ export function GarmentSelector({
                 <div className="text-xs text-muted-foreground flex items-center gap-1">
                   <Shirt aria-hidden="true" className="h-3 w-3" /> {p.brand}
                 </div>
-                <div className="mt-0.5 truncate text-sm font-semibold leading-tight" title={p.name}>{p.name}</div>
+                <div className="mt-1 truncate text-sm font-semibold leading-tight" title={p.name}>{p.name}</div>
                 <div className="mt-1 flex items-center justify-between">
                   <span className="text-xs font-bold">{formatCurrencyIDR(p.price)}</span>
                   <span className="text-[10px] text-muted-foreground capitalize">{p.fabric}</span>

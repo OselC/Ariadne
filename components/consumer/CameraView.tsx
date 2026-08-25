@@ -18,6 +18,8 @@ export function CameraView({
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const poseLandmarkerRef = useRef<any>(null);
+  const streamRef = useRef<MediaStream | null>(null);
+  const cameraRequestRef = useRef(0);
   const rafRef = useRef<number | null>(null);
   const historyRef = useRef<number[]>([]);
   const [stream, setStream] = useState<MediaStream | null>(null);
@@ -39,6 +41,7 @@ export function CameraView({
   }, []);
 
   const start = useCallback(async () => {
+    const requestId = ++cameraRequestRef.current;
     setError(null);
     setCapturedUrl(null);
     setCountdown(null);
@@ -49,6 +52,11 @@ export function CameraView({
         video: { facingMode: "user", width: { ideal: 720 }, height: { ideal: 1280 } },
         audio: false,
       });
+      if (requestId !== cameraRequestRef.current) {
+        s.getTracks().forEach((track) => track.stop());
+        return;
+      }
+      streamRef.current = s;
       setStream(s);
       if (videoRef.current) {
         const video = videoRef.current;
@@ -119,16 +127,25 @@ export function CameraView({
         if (videoRef.current) (videoRef.current as any)._steadinessInterval = id;
       }
     } catch (e: any) {
+      if (requestId !== cameraRequestRef.current) return;
       setError(e.message ?? "Camera access denied");
       setStatusMsg("Camera unavailable");
     }
   }, [capturedUrl]);
 
   const stop = useCallback(() => {
-    stream?.getTracks().forEach((tr) => tr.stop());
+    cameraRequestRef.current += 1;
+    const currentStream = streamRef.current ?? (videoRef.current?.srcObject as MediaStream | null);
+    currentStream?.getTracks().forEach((track) => track.stop());
+    streamRef.current = null;
+    if (videoRef.current) videoRef.current.srcObject = null;
     if (videoRef.current && (videoRef.current as any)._steadinessInterval) {
       clearInterval((videoRef.current as any)._steadinessInterval);
     }
+    if (autoTimeoutRef.current) clearTimeout(autoTimeoutRef.current);
+    if (countdownIntervalRef.current) clearInterval(countdownIntervalRef.current);
+    autoTimeoutRef.current = null;
+    countdownIntervalRef.current = null;
     stopDetection();
     if (poseLandmarkerRef.current) {
       try { poseLandmarkerRef.current.close(); } catch {}
@@ -136,7 +153,7 @@ export function CameraView({
     }
     setStream(null);
     setModelReady(false);
-  }, [stream, stopDetection]);
+  }, [stopDetection]);
 
   useEffect(() => {
     start();
@@ -160,19 +177,9 @@ export function CameraView({
     setCapturedUrl(dataUrl);
     onCapture(dataUrl, steadiness);
     setCountdown(null);
-    const currentStream = stream ?? (videoRef.current?.srcObject as MediaStream | null);
-    if (currentStream) currentStream.getTracks().forEach((tr) => tr.stop());
-    if (videoRef.current && (videoRef.current as any)._steadinessInterval) {
-      clearInterval((videoRef.current as any)._steadinessInterval);
-    }
-    stopDetection();
-    if (poseLandmarkerRef.current) {
-      try { poseLandmarkerRef.current.close(); } catch {}
-      poseLandmarkerRef.current = null;
-    }
-    setStream(null);
+    stop();
     setStatusMsg("Photo captured — camera off");
-  }, [onCapture, steadiness, stream, stopDetection]);
+  }, [onCapture, steadiness, stop]);
 
   const retake = () => {
     setCapturedUrl(null);
@@ -196,13 +203,7 @@ export function CameraView({
       setCapturedUrl(dataUrl);
       onCapture(dataUrl, 0.95);
       setStatusMsg("Uploaded image ready — camera off");
-      const currentStream = stream ?? (videoRef.current?.srcObject as MediaStream | null);
-      if (currentStream) currentStream.getTracks().forEach((tr) => tr.stop());
-      if (videoRef.current && (videoRef.current as any)._steadinessInterval) {
-        clearInterval((videoRef.current as any)._steadinessInterval);
-      }
-      stopDetection();
-      setStream(null);
+      stop();
     };
     reader.readAsDataURL(file);
     e.target.value = "";
@@ -211,7 +212,7 @@ export function CameraView({
   const startTimerCapture = useCallback(() => {
     if (countdown !== null) return;
     setCountdown(timerSeconds);
-    setStatusMsg(`Timer: ${timerSeconds}s — get ready...`);
+    setStatusMsg(`Timer: ${timerSeconds}s — get ready…`);
     countdownIntervalRef.current = setInterval(() => {
       setCountdown((prev) => {
         if (prev === null) return null;
@@ -221,7 +222,7 @@ export function CameraView({
           return null;
         }
         const next = prev - 1;
-        setStatusMsg(`Timer: ${next}s...`);
+        setStatusMsg(`Timer: ${next}s…`);
         return next;
       });
     }, 1000);
@@ -242,7 +243,7 @@ export function CameraView({
     }
     if (steadiness > 0.78) {
       if (!autoTimeoutRef.current) {
-        setStatusMsg("Auto: steady — capturing in 1.2s...");
+        setStatusMsg("Auto: steady — capturing in 1.2s…");
         autoTimeoutRef.current = setTimeout(() => {
           capture();
           autoTimeoutRef.current = null;
@@ -252,7 +253,7 @@ export function CameraView({
       if (autoTimeoutRef.current) {
         clearTimeout(autoTimeoutRef.current);
         autoTimeoutRef.current = null;
-        setStatusMsg(modelReady ? "Auto: hold steady — entire body visible" : "Auto: hold steady...");
+        setStatusMsg(modelReady ? "Auto: hold steady — entire body visible" : "Auto: hold steady…");
       }
     }
     return () => {
