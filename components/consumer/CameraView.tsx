@@ -377,8 +377,8 @@ export function CameraView({
         )}
 
         {countdown !== null && !capturedUrl && (
-          <div className="absolute inset-0 flex items-center justify-center bg-[var(--color-dark-paper)]">
-            <div className="flex h-28 w-28 items-center justify-center rounded-[var(--radius-card)] bg-[var(--color-paper)] text-5xl font-bold text-primary shadow-[var(--shadow-card)]">
+          <div className="absolute inset-0 flex items-center justify-center bg-black/40 backdrop-blur-[1px]">
+            <div className="flex h-28 w-28 items-center justify-center rounded-full bg-white text-5xl font-bold text-[#e63946] shadow-xl">
               {countdown}
             </div>
           </div>
@@ -453,13 +453,9 @@ export function CameraView({
               </Button>
               {dropdownOpen && (
                 <div ref={captureOptionsRef} id="capture-options" role="dialog" aria-modal="false" aria-label="Capture options" className="absolute bottom-full right-0 mb-2 w-56 overflow-hidden rounded-[var(--radius-card)] border bg-card shadow-[var(--shadow-card)] [z-index:var(--z-dropdown)]">
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="sm"
-                    aria-pressed={captureMode === "capture"}
+                  <button
                     onClick={() => { setCaptureMode("capture"); closeCaptureOptions(true); }}
-                    className={`w-full justify-start rounded-none px-3 ${captureMode === "capture" ? "bg-muted font-semibold" : ""}`}
+                    className={`flex w-full items-center gap-2 px-3 py-2.5 text-sm text-left hover:bg-muted ${captureMode === "capture" ? "bg-muted font-semibold" : ""}`}
                   >
                     <Camera className="h-4 w-4" /> Capture <span className="ml-auto text-xs text-muted-foreground">Manual</span>
                   </button>
@@ -468,7 +464,7 @@ export function CameraView({
                     className={`flex w-full items-center gap-2 px-3 py-2.5 text-sm text-left hover:bg-muted ${captureMode === "auto" ? "bg-muted font-semibold" : ""}`}
                   >
                     <Zap className="h-4 w-4" /> Auto-Capture <span className="ml-auto text-xs text-muted-foreground">Entire body</span>
-                  </Button>
+                  </button>
                   <div className={`px-3 py-3 ${captureMode === "timer" ? "bg-muted" : ""}`}>
                     <Button
                       type="button"
