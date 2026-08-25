@@ -71,7 +71,7 @@ export default function DashboardPage() {
         </div>
         <div className="flex flex-wrap items-end gap-2 lg:col-span-5 lg:justify-end">
           {data?.mock && <Badge variant="warning">Demo environment · live metrics pending</Badge>}
-          <Badge variant="outline" className="gap-1.5"><Store aria-hidden="true" className="h-3 w-3" /> MSME brand portal</Badge>
+          <Badge variant="outline" className="gap-2"><Store aria-hidden="true" className="h-3 w-3" /> MSME brand portal</Badge>
           <Link href="/try-on" className={buttonVariants({ variant: "outline", size: "sm" })}>Back to Try-On</Link>
         </div>
       </header>
@@ -82,8 +82,8 @@ export default function DashboardPage() {
             <span className="font-bold">COMPFEST AIC:</span> AI for the Backbone of the Economy · Smart Commerce and Smart Logistics
           </div>
           <div className="flex flex-wrap gap-5 text-xs text-muted-foreground md:col-span-4 md:justify-end">
-            <span className="flex items-center gap-1.5"><Truck aria-hidden="true" className="h-3 w-3" /> Fewer reverse-logistics trips</span>
-            <span className="flex items-center gap-1.5"><Leaf aria-hidden="true" className="h-3 w-3" /> Less packaging waste</span>
+            <span className="flex items-center gap-2"><Truck aria-hidden="true" className="h-3 w-3" /> Fewer reverse-logistics trips</span>
+            <span className="flex items-center gap-2"><Leaf aria-hidden="true" className="h-3 w-3" /> Less packaging waste</span>
           </div>
       </div>
 

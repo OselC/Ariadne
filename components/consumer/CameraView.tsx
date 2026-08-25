@@ -293,8 +293,8 @@ export function CameraView({
         )}
 
         {countdown !== null && !capturedUrl && (
-          <div className="absolute inset-0 flex items-center justify-center bg-black/50">
-            <div className="flex h-28 w-28 items-center justify-center rounded-full bg-white text-5xl font-bold text-[#e63946] shadow-xl">
+          <div className="absolute inset-0 flex items-center justify-center bg-[var(--color-dark-paper)]">
+            <div className="flex h-28 w-28 items-center justify-center rounded-[var(--radius-card)] bg-[var(--color-paper)] text-5xl font-bold text-primary shadow-[var(--shadow-card)]">
               {countdown}
             </div>
           </div>
@@ -305,7 +305,7 @@ export function CameraView({
             {steadiness > 0.78 ? <CheckCircle2 aria-hidden="true" className="h-3 w-3 mr-1" /> : <AlertTriangle aria-hidden="true" className="h-3 w-3 mr-1" />}
             {Math.round(steadiness * 100)}% steady
           </Badge>
-          <span className="hidden border border-[var(--color-rule-2)] bg-[var(--color-dark-paper-2)] px-2.5 py-1 text-[11px] text-[var(--color-dark-ink)] sm:inline">
+          <span className="hidden border border-[var(--color-rule-2)] bg-[var(--color-dark-paper-2)] px-3 py-1 text-[11px] text-[var(--color-dark-ink)] sm:inline">
             {modelReady ? "MediaPipe Pose · live" : "Readiness simulation"}
           </span>
         </div>
@@ -356,40 +356,55 @@ export function CameraView({
               </Button>
               <Button
                 variant="thread"
-                className="rounded-l-none border-l border-white/20 px-2"
+                className="rounded-l-none border-l border-[var(--color-rule-2)] px-2"
                 onClick={() => setDropdownOpen((v) => !v)}
                 disabled={disabled || countdown !== null}
                 aria-label="Capture options"
+                aria-haspopup="dialog"
+                aria-expanded={dropdownOpen}
+                aria-controls="capture-options"
               >
                 <ChevronDown aria-hidden="true" className={`h-4 w-4 transition-transform ${dropdownOpen ? "rotate-180" : ""}`} />
               </Button>
               {dropdownOpen && (
-                <div className="absolute bottom-full right-0 mb-2 z-20 w-56 rounded-xl border bg-card shadow-xl overflow-hidden">
-                  <button
+                <div id="capture-options" role="dialog" aria-label="Capture options" className="absolute bottom-full right-0 mb-2 w-56 overflow-hidden rounded-[var(--radius-card)] border bg-card shadow-[var(--shadow-card)] [z-index:var(--z-dropdown)]">
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    aria-pressed={captureMode === "capture"}
                     onClick={() => { setCaptureMode("capture"); setDropdownOpen(false); }}
-                    className={`flex w-full items-center gap-2 px-3 py-2.5 text-sm text-left hover:bg-muted ${captureMode === "capture" ? "bg-muted font-semibold" : ""}`}
+                    className={`w-full justify-start rounded-none px-3 ${captureMode === "capture" ? "bg-muted font-semibold" : ""}`}
                   >
                     <Camera className="h-4 w-4" /> Capture <span className="ml-auto text-xs text-muted-foreground">Manual</span>
-                  </button>
-                  <button
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    aria-pressed={captureMode === "auto"}
                     onClick={() => { setCaptureMode("auto"); setDropdownOpen(false); }}
-                    className={`flex w-full items-center gap-2 px-3 py-2.5 text-sm text-left hover:bg-muted ${captureMode === "auto" ? "bg-muted font-semibold" : ""}`}
+                    className={`w-full justify-start rounded-none px-3 ${captureMode === "auto" ? "bg-muted font-semibold" : ""}`}
                   >
                     <Zap className="h-4 w-4" /> Auto-Capture <span className="ml-auto text-xs text-muted-foreground">Entire body</span>
-                  </button>
-                  <div className={`px-3 py-2.5 ${captureMode === "timer" ? "bg-muted" : ""}`}>
-                    <button
+                  </Button>
+                  <div className={`px-3 py-3 ${captureMode === "timer" ? "bg-muted" : ""}`}>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      aria-pressed={captureMode === "timer"}
                       onClick={() => { setCaptureMode("timer"); }}
-                      className="flex w-full items-center gap-2 text-sm text-left"
+                      className="w-full justify-start rounded-none px-0"
                     >
                       <Clock className="h-4 w-4" /> Timer
-                    </button>
+                    </Button>
                     <div className="mt-2 flex items-center gap-2">
                       <span className="text-xs text-muted-foreground">Seconds:</span>
                       <select
                         value={timerSeconds}
                         onChange={(e) => { setTimerSeconds(Number(e.target.value)); setCaptureMode("timer"); }}
-                        className="rounded-lg border bg-background px-2 py-1 text-sm"
+                        className="h-11 rounded-[var(--radius-input)] border border-input bg-background px-2 text-sm outline outline-2 outline-transparent hover:bg-secondary/40 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-ring disabled:cursor-not-allowed disabled:opacity-55"
                       >
                         <option value={3}>3s</option>
                         <option value={5}>5s</option>

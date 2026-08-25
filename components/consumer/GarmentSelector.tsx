@@ -74,7 +74,7 @@ export function GarmentSelector({
         <p id="garment-search-status" className={cn("mt-2 min-h-4 text-xs", error ? "text-destructive" : "text-muted-foreground")} aria-live="polite">{error ?? (loading ? "Updating catalogue…" : `${products.length} garments`)}</p>
       </div>
 
-      <div className="flex gap-1.5 overflow-x-auto pb-1 scrollbar-thin" aria-label="Garment categories">
+      <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-thin" aria-label="Garment categories">
         {[
           ["all", "All"],
           ["upper_body", "Tops"],
@@ -87,7 +87,7 @@ export function GarmentSelector({
             key={val}
             onClick={() => setFilter(val)}
             className={cn(
-              "min-h-11 shrink-0 rounded-[var(--radius-input)] border px-3.5 text-xs font-medium transition-[background-color,color,transform] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring active:translate-y-px disabled:cursor-not-allowed disabled:opacity-55",
+              "min-h-11 shrink-0 rounded-[var(--radius-input)] border px-4 text-xs font-medium transition-[background-color,color,transform] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring active:translate-y-px disabled:cursor-not-allowed disabled:opacity-55",
               filter === val ? "bg-primary text-primary-foreground border-primary" : "bg-background hover:bg-muted"
             )}
           >
@@ -119,7 +119,7 @@ export function GarmentSelector({
               <div className="aspect-[4/5] overflow-hidden bg-muted relative">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src={p.image_url} alt="" className="h-full w-full object-cover" />
-                <Badge className="absolute top-2 left-2 text-[10px] px-1.5 py-0.5">{p.stretch_level} stretch</Badge>
+                <Badge className="absolute top-2 left-2 px-2 py-1 text-[10px]">{p.stretch_level} stretch</Badge>
               </div>
               <CardContent className="p-3">
                 <div className="text-xs text-muted-foreground flex items-center gap-1">
