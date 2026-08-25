@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { formatCurrencyIDR } from "@/lib/utils";
+import { calculateFitAnalysis, type BodyProportions } from "@/lib/mediapipe";
 
 /* Hallmark · genre: editorial · macrostructure: Workbench · design-system: design.md · designed-as-app
  * panes: camera=4 · catalogue=5 · output=3 · F3 specs=key/value/unit
@@ -23,6 +24,7 @@ export default function TryOnPage() {
   const [selectedSize, setSelectedSize] = useState<string>("M");
   const [frame, setFrame] = useState<string | null>(null);
   const [steadiness, setSteadiness] = useState(0.7);
+  const [body, setBody] = useState<BodyProportions | null>(null);
   const [analysis, setAnalysis] = useState<FitAnalysis | null>(null);
   const [analyzing, setAnalyzing] = useState(false);
   const [trying, setTrying] = useState(false);
@@ -30,9 +32,10 @@ export default function TryOnPage() {
   const [mockFlags, setMockFlags] = useState<{ fit?: boolean; vton?: boolean }>({});
   const [actionError, setActionError] = useState<string | null>(null);
 
-  const handleCapture = (dataUrl: string, s: number) => {
+  const handleCapture = (dataUrl: string, s: number, measuredBody?: BodyProportions | null) => {
     setFrame(dataUrl);
     setSteadiness(s);
+    if (measuredBody) setBody(measuredBody);
   };
 
   const runAnalysis = async () => {
@@ -41,21 +44,25 @@ export default function TryOnPage() {
     setAnalysis(null);
     setActionError(null);
     try {
-      const res = await fetch("/api/analyze-fit", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          imageBase64: frame,
-          productId: selected.id,
-          selectedSize,
-          poseSteadiness: steadiness,
-        }),
-      });
-      const json = await res.json();
-      if (json.error) throw new Error(json.error);
-      setAnalysis(json.analysis);
-      setMockFlags((current) => ({ ...current, fit: json.mock }));
-      if (json.analysis?.recommended_size) setSelectedSize(json.analysis.recommended_size);
+      const measured = body ?? { shoulder_cm: 42, chest_cm: 96, waist_cm: 82, height_cm: 170 };
+      const result = calculateFitAnalysis(
+        { size_chart: selected.size_chart, fabric: selected.fabric, stretch_level: selected.stretch_level },
+        measured,
+        selectedSize,
+        Math.min(0.95, Math.max(0.6, steadiness * 0.9 + 0.15))
+      );
+      await new Promise((r) => setTimeout(r, 400));
+      setAnalysis(result as FitAnalysis);
+      setMockFlags((current) => ({ ...current, fit: !body }));
+      if (result.recommended_size) setSelectedSize(result.recommended_size);
+      if (selected.id) {
+        fetch("/api/analytics", { method: "POST" as any, headers: { "Content-Type": "application/json" }, body: JSON.stringify({ product_id: selected.id, event_type: "try_on", size: selectedSize, fit_risk: result.fit_risk }) }).catch(() => {});
+        fetch("/api/analyze-fit", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ imageBase64: frame, productId: selected.id, selectedSize, poseSteadiness: steadiness, body: measured }),
+        }).catch(() => {});
+      }
     } catch (error) {
       setActionError(error instanceof Error ? error.message : "Fit analysis failed. Try again.");
     } finally {
@@ -102,7 +109,7 @@ export default function TryOnPage() {
           </p>
         </div>
         <div className="self-end text-sm text-muted-foreground lg:col-span-5 lg:text-right">
-          Browser camera · Hugging Face Qwen2-VL · IDM-VTON · Supabase
+          Browser camera · MediaPipe Pose · IDM-VTON · Supabase
         </div>
       </header>
 
@@ -111,7 +118,7 @@ export default function TryOnPage() {
           <div className="border-b pb-3">
             <h2 id="camera-heading" className="text-xl font-bold">Frame</h2>
           </div>
-          <CameraView onCapture={handleCapture} disabled={analyzing || trying} />
+          <CameraView onCapture={handleCapture} onMeasures={(b) => b && setBody(b)} disabled={analyzing || trying} />
           {frame && (
             <div className="flex items-center justify-between gap-3 border border-[var(--color-success)] bg-[var(--color-success-soft)] p-3 text-xs tnum">
               <span>Frame ready for both AI layers</span>
@@ -189,7 +196,7 @@ export default function TryOnPage() {
             <h2 id="output-heading" className="text-xl font-bold">Compare</h2>
           </div>
           <FitAnalysisCard analysis={analysis} selectedSize={selectedSize} />
-          {mockFlags.fit && <p className="text-xs leading-5 text-muted-foreground">Demo fit data · add `HF_TOKEN` for live Hugging Face analysis.</p>}
+          {mockFlags.fit && <p className="text-xs leading-5 text-muted-foreground">Estimated fit — frame entire body for MediaPipe measurement.</p>}
           <TryOnPreview resultUrl={resultUrl} garmentUrl={selected?.image_url} mock={mockFlags.vton} />
 
           {(analysis || resultUrl) && (

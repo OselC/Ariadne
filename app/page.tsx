@@ -9,7 +9,7 @@ import { buttonVariants } from "@/components/ui/button";
 
 const stages = [
   { number: "1.0", verb: "Frame", title: "Start with a usable image.", body: "The prototype provides a browser-camera framing guide and a simulated steadiness indicator. Upload remains available when a live camera is not practical.", Icon: Camera, details: ["Full-body guide", "Readiness simulation", "Camera or image upload"] },
-  { number: "2.0", verb: "Read", title: "Compare the body, garment, and fabric.", body: "Hugging Face Qwen2-VL reads proportions against the selected size chart, then accounts for fabric stretch and the cut of the garment before recommending a size.", Icon: Ruler, details: ["Fit-risk assessment", "Size recommendation", "Specific garment warnings"] },
+  { number: "2.0", verb: "Read", title: "Compare the body, garment, and fabric.", body: "MediaPipe Pose estimates body proportions from landmarks, then checks them against the selected size chart and fabric stretch before recommending a size.", Icon: Ruler, details: ["Fit-risk assessment", "Size recommendation", "Specific garment warnings"] },
   { number: "3.0", verb: "Render", title: "See the garment before checkout.", body: "IDM-VTON produces the try-on view while the fit analysis explains where the garment may pull, loosen, or sit differently from the catalogue image.", Icon: Shirt, details: ["Garment-specific drape", "Independent analysis and render", "Purchase event for merchant insight"] },
 ];
 
@@ -28,7 +28,7 @@ export default function LandingPage() {
         </div>
         <aside className="self-end border-t pt-5 lg:col-span-5" aria-label="Ariadne system overview">
           <div className="flex items-center justify-between gap-4 pb-4 text-sm"><span className="font-semibold">Hybrid AI route</span><span className="text-xs text-muted-foreground">CAMERA → DECISION</span></div>
-          {[["Frame", "Browser camera guide", ScanLine], ["Fit", "Qwen2-VL + size chart", ShieldCheck], ["Drape", "IDM-VTON", Shirt], ["Demand", "Supabase analytics", BarChart3]].map(([label, value, Icon]) => {
+          {[["Frame", "Browser camera guide", ScanLine], ["Fit", "MediaPipe Pose + size chart", ShieldCheck], ["Drape", "IDM-VTON", Shirt], ["Demand", "Supabase analytics", BarChart3]].map(([label, value, Icon]) => {
             const RowIcon = Icon as typeof ScanLine;
             return <div key={label as string} className="grid grid-cols-[2rem_minmax(0,1fr)_minmax(0,1.4fr)] items-center gap-3 border-t py-4 text-sm"><RowIcon aria-hidden="true" className="h-4 w-4 text-primary" /><span className="font-semibold">{label as string}</span><span className="text-right text-muted-foreground">{value as string}</span></div>;
           })}

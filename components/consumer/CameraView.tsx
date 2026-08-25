@@ -5,13 +5,15 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Camera, RefreshCcw, CheckCircle2, AlertTriangle, Upload, ChevronDown, Clock, Zap } from "lucide-react";
-import { evaluatePoseSteadiness, MEDIAPIPE_WASM_URL } from "@/lib/mediapipe";
+import { evaluatePoseSteadiness, estimateBodyProportions, MEDIAPIPE_WASM_URL, type BodyProportions } from "@/lib/mediapipe";
 
 export function CameraView({
   onCapture,
+  onMeasures,
   disabled,
 }: {
-  onCapture: (dataUrl: string, steadiness: number) => void;
+  onCapture: (dataUrl: string, steadiness: number, body?: BodyProportions | null) => void;
+  onMeasures?: (body: BodyProportions | null, confidence: number) => void;
   disabled?: boolean;
 }) {
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -20,6 +22,7 @@ export function CameraView({
   const poseLandmarkerRef = useRef<any>(null);
   const rafRef = useRef<number | null>(null);
   const historyRef = useRef<number[]>([]);
+  const lastBodyRef = useRef<BodyProportions | null>(null);
   const [stream, setStream] = useState<MediaStream | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [steadiness, setSteadiness] = useState(0.45);
@@ -59,65 +62,19 @@ export function CameraView({
           if (e?.name !== "AbortError") console.warn("video.play failed:", e);
         }
       }
-      setStatusMsg("Loading pose model…");
-      try {
-        const vision = await import("@mediapipe/tasks-vision");
-        const fileset = await vision.FilesetResolver.forVisionTasks(MEDIAPIPE_WASM_URL);
-        const landmarker = await vision.PoseLandmarker.createFromOptions(fileset, {
-          baseOptions: {
-            modelAssetPath: "https://storage.googleapis.com/mediapipe-models/pose_landmarker/pose_landmarker_lite/float16/1/pose_landmarker_lite.task",
-            delegate: "GPU",
-          },
-          runningMode: "VIDEO",
-          numPoses: 1,
-          minPoseDetectionConfidence: 0.5,
-          minPosePresenceConfidence: 0.5,
-          minTrackingConfidence: 0.5,
-        });
-        poseLandmarkerRef.current = landmarker;
-        setModelReady(true);
-        setStatusMsg("Pose model ready — stand steady");
-        historyRef.current = [];
-        let lastTime = -1;
-        const detect = () => {
-          const video = videoRef.current;
-          if (!video || video.readyState < 2 || video.videoWidth === 0 || capturedUrl) {
-            rafRef.current = requestAnimationFrame(detect);
-            return;
-          }
-          const now = performance.now();
-          if (now - lastTime < 120) {
-            rafRef.current = requestAnimationFrame(detect);
-            return;
-          }
-          lastTime = now;
-          try {
-            const result = landmarker.detectForVideo(video, now);
-            const landmarks = result.landmarks?.[0] ?? null;
-            if (landmarks) {
-              const avgY = landmarks.slice(11, 13).reduce((a: number, p: any) => a + p.y, 0) / 2;
-              historyRef.current.push(avgY);
-              if (historyRef.current.length > 8) historyRef.current.shift();
-            }
-            const evalRes = evaluatePoseSteadiness(landmarks as any, historyRef.current);
-            setSteadiness(evalRes.score);
-            setStatusMsg(evalRes.message);
-          } catch {}
-          rafRef.current = requestAnimationFrame(detect);
-        };
-        detect();
-      } catch {
-        setModelReady(false);
-        let t = 0;
-        const id = setInterval(() => {
-          t += 1;
-          const mock = 0.5 + 0.4 * Math.sin(t * 0.15) + Math.random() * 0.08;
-          const clamped = Math.min(0.98, Math.max(0.25, mock));
-          setSteadiness(clamped);
-          setStatusMsg(clamped > 0.78 ? "Simulation: ready to capture" : "Simulation: hold steady");
-        }, 350);
-        if (videoRef.current) (videoRef.current as any)._steadinessInterval = id;
-      }
+      setStatusMsg("Camera ready");
+      let t = 0;
+      const simId = setInterval(() => {
+        if (captureMode === "auto" && modelReady) return;
+        t += 1;
+        const mock = 0.5 + 0.4 * Math.sin(t * 0.15) + Math.random() * 0.08;
+        const clamped = Math.min(0.98, Math.max(0.25, mock));
+        setSteadiness(clamped);
+        if (captureMode !== "auto") {
+          setStatusMsg(clamped > 0.78 ? "Ready to capture" : "Hold steady");
+        }
+      }, 350);
+      if (videoRef.current) (videoRef.current as any)._steadinessInterval = simId;
     } catch (e: any) {
       setError(e.message ?? "Camera access denied");
       setStatusMsg("Camera unavailable");
@@ -138,6 +95,81 @@ export function CameraView({
     setModelReady(false);
   }, [stream, stopDetection]);
 
+  const ensurePoseModel = useCallback(async () => {
+    if (poseLandmarkerRef.current || modelReady || !stream || capturedUrl) return;
+    setStatusMsg("Loading pose model…");
+    try {
+      const vision = await import("@mediapipe/tasks-vision");
+      const fileset = await vision.FilesetResolver.forVisionTasks(MEDIAPIPE_WASM_URL);
+      let landmarker: any = null;
+      try {
+        landmarker = await vision.PoseLandmarker.createFromOptions(fileset, {
+          baseOptions: {
+            modelAssetPath: "https://storage.googleapis.com/mediapipe-models/pose_landmarker/pose_landmarker_lite/float16/1/pose_landmarker_lite.task",
+            delegate: "GPU",
+          },
+          runningMode: "VIDEO",
+          numPoses: 1,
+          minPoseDetectionConfidence: 0.5,
+          minPosePresenceConfidence: 0.5,
+          minTrackingConfidence: 0.5,
+        });
+      } catch {
+        landmarker = await vision.PoseLandmarker.createFromOptions(fileset, {
+          baseOptions: {
+            modelAssetPath: "https://storage.googleapis.com/mediapipe-models/pose_landmarker/pose_landmarker_lite/float16/1/pose_landmarker_lite.task",
+            delegate: "CPU",
+          },
+          runningMode: "VIDEO",
+          numPoses: 1,
+          minPoseDetectionConfidence: 0.5,
+          minPosePresenceConfidence: 0.5,
+          minTrackingConfidence: 0.5,
+        });
+      }
+      poseLandmarkerRef.current = landmarker;
+      setModelReady(true);
+      setStatusMsg("Pose model ready — stand steady");
+      historyRef.current = [];
+      lastBodyRef.current = null;
+      let lastTime = -1;
+      const detect = () => {
+        const video = videoRef.current;
+        if (!video || video.readyState < 2 || video.videoWidth === 0 || capturedUrl || captureMode !== "auto") {
+          rafRef.current = requestAnimationFrame(detect);
+          return;
+        }
+        const now = performance.now();
+        if (now - lastTime < 120) {
+          rafRef.current = requestAnimationFrame(detect);
+          return;
+        }
+        lastTime = now;
+        try {
+          const result = landmarker.detectForVideo(video, now);
+          const landmarks = result.landmarks?.[0] ?? null;
+          if (landmarks) {
+            const avgY = landmarks.slice(11, 13).reduce((a: number, p: any) => a + p.y, 0) / 2;
+            historyRef.current.push(avgY);
+            if (historyRef.current.length > 8) historyRef.current.shift();
+            const body = estimateBodyProportions(landmarks as any);
+            lastBodyRef.current = body;
+            onMeasures?.(body, 0.82);
+          }
+          const evalRes = evaluatePoseSteadiness(landmarks as any, historyRef.current);
+          setSteadiness(evalRes.score);
+          setStatusMsg(evalRes.message);
+        } catch {}
+        rafRef.current = requestAnimationFrame(detect);
+      };
+      detect();
+    } catch (err) {
+      console.warn("Pose model failed, staying on manual simulation:", err);
+      setModelReady(false);
+      setStatusMsg("Auto requires pose — using simulation");
+    }
+  }, [stream, capturedUrl, modelReady, onMeasures, captureMode]);
+
   useEffect(() => {
     start();
     return () => stop();
@@ -147,9 +179,13 @@ export function CameraView({
   const capture = useCallback(() => {
     if (!videoRef.current || !canvasRef.current) return;
     const video = videoRef.current;
+    if (video.readyState < 2 || video.videoWidth === 0) {
+      setError("Camera not ready — retake or reload");
+      return;
+    }
     const canvas = canvasRef.current;
-    const w = video.videoWidth || 720;
-    const h = video.videoHeight || 1280;
+    const w = video.videoWidth;
+    const h = video.videoHeight;
     canvas.width = w;
     canvas.height = h;
     const ctx = canvas.getContext("2d")!;
@@ -157,8 +193,12 @@ export function CameraView({
     ctx.scale(-1, 1);
     ctx.drawImage(video, 0, 0, w, h);
     const dataUrl = canvas.toDataURL("image/jpeg", 0.86);
+    if (dataUrl.length < 1000) {
+      setError("Capture failed — try again");
+      return;
+    }
     setCapturedUrl(dataUrl);
-    onCapture(dataUrl, steadiness);
+    onCapture(dataUrl, steadiness, lastBodyRef.current);
     setCountdown(null);
     const currentStream = stream ?? (videoRef.current?.srcObject as MediaStream | null);
     if (currentStream) currentStream.getTracks().forEach((tr) => tr.stop());
@@ -217,7 +257,7 @@ export function CameraView({
         if (prev === null) return null;
         if (prev <= 1) {
           if (countdownIntervalRef.current) clearInterval(countdownIntervalRef.current);
-          setTimeout(() => capture(), 100);
+          capture();
           return null;
         }
         const next = prev - 1;
@@ -236,15 +276,18 @@ export function CameraView({
   };
 
   useEffect(() => {
-    if (captureMode !== "auto" || capturedUrl || disabled || countdown !== null) {
+    if (captureMode !== "auto" || capturedUrl || disabled || countdown !== null || !modelReady) {
       if (autoTimeoutRef.current) clearTimeout(autoTimeoutRef.current);
+      if (captureMode === "auto" && !modelReady && !capturedUrl) setStatusMsg("Auto: loading pose…");
       return;
     }
-    if (steadiness > 0.78) {
+    const hasBody = !!lastBodyRef.current;
+    const isSteady = steadiness > 0.78 && hasBody && historyRef.current.length >= 5;
+    if (isSteady) {
       if (!autoTimeoutRef.current) {
         setStatusMsg("Auto: steady — capturing in 1.2s...");
         autoTimeoutRef.current = setTimeout(() => {
-          capture();
+          if (lastBodyRef.current && !capturedUrl && captureMode === "auto") capture();
           autoTimeoutRef.current = null;
         }, 1200);
       }
@@ -252,16 +295,35 @@ export function CameraView({
       if (autoTimeoutRef.current) {
         clearTimeout(autoTimeoutRef.current);
         autoTimeoutRef.current = null;
-        setStatusMsg(modelReady ? "Auto: hold steady — entire body visible" : "Auto: hold steady...");
       }
+      if (!hasBody) setStatusMsg("Auto: show entire body");
+      else setStatusMsg("Auto: hold steady — entire body visible");
     }
     return () => {
-      if (autoTimeoutRef.current && steadiness <= 0.78) {
+      if (autoTimeoutRef.current && !isSteady) {
         clearTimeout(autoTimeoutRef.current);
         autoTimeoutRef.current = null;
       }
     };
   }, [steadiness, captureMode, capturedUrl, disabled, countdown, capture, modelReady]);
+
+  useEffect(() => {
+    if (captureMode === "auto") {
+      historyRef.current = [];
+      lastBodyRef.current = null;
+      if (autoTimeoutRef.current) clearTimeout(autoTimeoutRef.current);
+      setStatusMsg("Auto: show entire body");
+      if (stream && !capturedUrl) ensurePoseModel();
+    } else {
+      stopDetection();
+      if (poseLandmarkerRef.current) {
+        try { poseLandmarkerRef.current.close(); } catch {}
+        poseLandmarkerRef.current = null;
+      }
+      setModelReady(false);
+      if (!capturedUrl && stream) setStatusMsg("Ready to capture");
+    }
+  }, [captureMode, stream, capturedUrl, ensurePoseModel, stopDetection]);
 
   useEffect(() => {
     if (!dropdownOpen) return;
@@ -306,7 +368,7 @@ export function CameraView({
             {Math.round(steadiness * 100)}% steady
           </Badge>
           <span className="hidden border border-[var(--color-rule-2)] bg-[var(--color-dark-paper-2)] px-2.5 py-1 text-[11px] text-[var(--color-dark-ink)] sm:inline">
-            {modelReady ? "MediaPipe Pose · live" : "Readiness simulation"}
+            {captureMode === "auto" ? (modelReady ? "MediaPipe Pose · live" : "Loading pose…") : captureMode === "timer" ? "Timer mode" : "Manual mode"}
           </span>
         </div>
 
@@ -372,7 +434,7 @@ export function CameraView({
                     <Camera className="h-4 w-4" /> Capture <span className="ml-auto text-xs text-muted-foreground">Manual</span>
                   </button>
                   <button
-                    onClick={() => { setCaptureMode("auto"); setDropdownOpen(false); }}
+                    onClick={() => { historyRef.current = []; lastBodyRef.current = null; if (autoTimeoutRef.current) { clearTimeout(autoTimeoutRef.current); autoTimeoutRef.current = null; } setCaptureMode("auto"); setDropdownOpen(false); }}
                     className={`flex w-full items-center gap-2 px-3 py-2.5 text-sm text-left hover:bg-muted ${captureMode === "auto" ? "bg-muted font-semibold" : ""}`}
                   >
                     <Zap className="h-4 w-4" /> Auto-Capture <span className="ml-auto text-xs text-muted-foreground">Entire body</span>

@@ -2,7 +2,7 @@
   "name": "ariadne",
   "version": "0.1.0",
   "private": true,
-  "description": "Ariadne — The digital thread to your perfect fit. Smart Commerce & Return-Prevention Ecosystem with Hybrid AI (Hugging Face Qwen2-VL + IDM-VTON + MediaPipe)",
+  "description": "Ariadne — The digital thread to your perfect fit. Smart Commerce & Return-Prevention Ecosystem with Hybrid AI (MediaPipe Pose + IDM-VTON)",
   "scripts": {
     "dev": "next dev",
     "build": "next build",

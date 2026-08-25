@@ -1,5 +1,5 @@
 """
-Generate Before vs After collage for deck (LoRA + YOLO)
+Generate Before vs After collage for deck (LoRA)
 Produces: ai-pipeline/eval/before_after.png
 """
 from pathlib import Path

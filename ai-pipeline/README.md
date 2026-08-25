@@ -1,14 +1,14 @@
 # AI Pipeline — Ariadne FitVision
 
-Hybrid AI: pre-trained foundations + fine-tuned LoRA / YOLOv8 for competition requirement.
+Hybrid AI: pre-trained foundation + fine-tuned LoRA for competition requirement.
 
 ## Architecture (per PDF)
 
 ```
 Live Smartphone Camera
-   ├─ Layer 1: HF Vision (Qwen2-VL) (Intelligence Engine) → body proportions, size chart parse, fabric stretch → fit_risk JSON
+   ├─ Layer 1: MediaPipe Pose (Intelligence Engine) → 33 landmarks → shoulder/chest/waist/height → size chart compare → fit_risk JSON
    └─ Layer 2: IDM-VTON / Flux + Custom LoRA (Rendering Engine) → photoreal try-on
-MediaPipe Pose (client) → steadiness gate → clean Base64 frame
+MediaPipe Pose (client) → steadiness + body measurement → clean Base64 frame
 Output: Consumer (try-on + warning) + Merchant (return risk & sizing analytics) → Supabase
 ```
 
@@ -32,16 +32,6 @@ accelerate launch --mixed_precision=fp16 lora/train_lora.py \
 
 See `lora/train_lora.py` for full script.
 
-### Option B — YOLOv8 Classifier / Object Detector (fit anomalies)
-
-Fine-tune last layer on 200–300 annotated images to detect: tight shoulder, waist gap, fabric pulling, seam strain.
-
-```bash
-pip install -r yolov8/requirements.txt
-python yolov8/train_yolo.py --data yolov8/data.yaml --epochs 80 --imgsz 640 --batch 16
-python yolov8/evaluate.py --weights runs/detect/ariadne_yolo/weights/best.pt --data yolov8/data.yaml
-```
-
 ## Before vs After
 
 - Loss curves: TensorBoard / W&B (`--report_to wandb` in LoRA)
@@ -49,10 +39,10 @@ python yolov8/evaluate.py --weights runs/detect/ariadne_yolo/weights/best.pt --d
 
 ## API Wiring
 
-- `lib/huggingface.ts` → Hugging Face Qwen2-VL (Layer 1) with JSON mode + mock fallback (HF_TOKEN)
+- `lib/mediapipe.ts` → MediaPipe Pose (Layer 1) with `estimateBodyProportions` + `calculateFitAnalysis` (no LLM, on-device)
 - `lib/replicate.ts` → Replicate IDM-VTON (Layer 2) with mock fallback
-- Both respect `NEXT_PUBLIC_MOCK_AI=true` for offline demo
+- Both respect `NEXT_PUBLIC_MOCK_AI=true` for offline demo (fit analysis works offline via MediaPipe)
 
 ## Repro
 
-All scripts log to `ai-pipeline/runs/` and expect no local GPU for inference (Replicate + HF Inference calls).
+All scripts log to `ai-pipeline/runs/` and expect no local GPU for inference (MediaPipe on-device + Replicate).

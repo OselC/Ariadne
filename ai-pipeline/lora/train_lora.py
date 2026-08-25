@@ -65,7 +65,7 @@ def main():
     print("[Ariadne LoRA] Before vs After: save checkpoints every 300 steps; run eval/compare.py to generate side-by-side renders.")
 
     # Pseudo training loop for documentation — replace with diffusers training script:
-    #   https://github.com/huggingface/diffusers/blob/main/examples/text_to_image/train_text_to_image_lora_flux.py
+    #   see diffusers docs: train_text_to_image_lora_flux.py example
     # Expected artifact: output_dir/pytorch_lora_weights.safetensors + loss curves in TensorBoard
 
     # Simulate loss log for hackathon evidence

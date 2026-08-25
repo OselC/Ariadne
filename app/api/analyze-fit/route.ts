@@ -1,24 +1,24 @@
 import { NextRequest, NextResponse } from "next/server";
-import { analyzeFitWithHF, getHFToken, mockFitAnalysis } from "@/lib/huggingface";
+import { calculateFitAnalysis, type BodyProportions } from "@/lib/mediapipe";
 import { getSupabaseServer } from "@/lib/supabase/server";
 
 export const maxDuration = 30;
 
 export async function POST(req: NextRequest) {
   try {
-    const body = await req.json();
-    const { imageBase64, productId, selectedSize, poseSteadiness } = body as {
+    const reqBody = await req.json();
+    const { imageBase64, productId, selectedSize, poseSteadiness, body: bodyMeasures } = reqBody as {
       imageBase64: string;
       productId: string;
       selectedSize?: string;
       poseSteadiness?: number;
+      body?: BodyProportions | null;
     };
 
     if (!imageBase64 || !productId) {
       return NextResponse.json({ error: "imageBase64 and productId required" }, { status: 400 });
     }
 
-    // Fetch product for size chart context
     let product: any = null;
     const supabase = getSupabaseServer();
     if (supabase) {
@@ -26,7 +26,6 @@ export async function POST(req: NextRequest) {
       product = data;
     }
 
-    // Fallback mock product if no DB
     if (!product) {
       product = {
         name: "Selected Garment",
@@ -38,36 +37,15 @@ export async function POST(req: NextRequest) {
       };
     }
 
-    const hasHF = !!getHFToken();
-    const useMock = process.env.NEXT_PUBLIC_MOCK_AI === "true" || !hasHF;
-
-    let analysis: any;
-    let isMock = useMock;
-    if (useMock) {
-      await new Promise((r) => setTimeout(r, 900));
-      analysis = mockFitAnalysis(selectedSize ?? "M");
-    } else {
-      try {
-        analysis = await analyzeFitWithHF({
-          imageBase64,
-          product: {
-            name: product.name,
-            brand: product.brand,
-            category: product.category,
-            fabric: product.fabric,
-            stretch_level: product.stretch_level,
-            size_chart: product.size_chart,
-          },
-          selectedSize,
-          poseSteadiness,
-        });
-      } catch (err: any) {
-        console.warn("HF analyze failed, falling back to mock:", err?.cause ?? err?.message);
-        await new Promise((r) => setTimeout(r, 600));
-        analysis = mockFitAnalysis(selectedSize ?? "M");
-        isMock = true;
-      }
-    }
+    const useMock = process.env.NEXT_PUBLIC_MOCK_AI === "true";
+    const measured: BodyProportions = (bodyMeasures as BodyProportions | null) ?? { shoulder_cm: 42, chest_cm: 96, waist_cm: 82, height_cm: 170 };
+    const isMock = !bodyMeasures || useMock;
+    const analysis = calculateFitAnalysis(
+      { size_chart: product.size_chart, fabric: product.fabric, stretch_level: product.stretch_level },
+      measured,
+      selectedSize,
+      Math.min(0.95, Math.max(0.6, (poseSteadiness ?? 0.7) * 0.9 + 0.15))
+    );
 
     // Log analytics event (try_on)
     if (supabase && productId) {

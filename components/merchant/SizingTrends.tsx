@@ -105,7 +105,7 @@ export function SizingTrends({ data }: { data: any }) {
       <Card className="lg:col-span-2">
         <CardHeader>
           <CardTitle className="text-base">Fit Risk Distribution</CardTitle>
-          <CardDescription>Hugging Face fit-risk assessment drives pre-purchase warnings.</CardDescription>
+          <CardDescription>MediaPipe fit-risk assessment drives pre-purchase warnings.</CardDescription>
         </CardHeader>
         <CardContent className="flex h-[260px] items-center tnum" role="img" aria-label="Distribution of low, medium, and high fit risk" aria-describedby="fit-risk-data">
           <ResponsiveContainer width="100%" height="100%">
