@@ -1,48 +1,65 @@
 # Design — Ariadne
 
 A locked design system for this app. Every route reads this file before visual changes.
-Extend this system when a new need is proven; do not invent per-page themes.
+Extend it only when a new need is proven; do not invent per-page themes.
 
 ## Genre
 
-Editorial. The product combines fashion, mythology, and technical analysis, so the
-interface uses warm paper, typographic hierarchy, hairline rules, and restrained red.
+Modern-minimal. Ariadne uses a warm-white canvas, geometric sans-serif hierarchy,
+precise rules, and restrained coral red to feel like a premium technology product
+without losing its fashion context.
 
 ## Macrostructure family
 
-- Marketing pages: Narrative Workflow with an F4 vertical step sequence and C3 typographic links.
+- Marketing pages: Marquee Hero above the fold, followed by an F4 vertical workflow.
 - App pages: Workbench with functional panes, F3 tabular specifications, and real product imagery.
 - Content pages: Long Document if introduced later.
 
 ## Theme
 
-- `--color-paper` oklch(97% 0.010 74)
-- `--color-paper-2` oklch(94% 0.014 72)
-- `--color-paper-3` oklch(90% 0.016 70)
-- `--color-ink` oklch(17% 0.014 30)
-- `--color-ink-2` oklch(30% 0.018 30)
-- `--color-rule` oklch(82% 0.018 65)
-- `--color-muted` oklch(42% 0.018 35)
-- `--color-accent` oklch(50% 0.205 25)
-- `--color-accent-ink` oklch(98% 0.008 74)
-- `--color-focus` oklch(55% 0.220 25)
+- `--color-paper` oklch(98.5% 0.006 55)
+- `--color-paper-2` oklch(96.5% 0.009 55)
+- `--color-paper-3` oklch(93.5% 0.012 55)
+- `--color-ink` oklch(18% 0.018 30)
+- `--color-ink-2` oklch(31% 0.022 30)
+- `--color-rule` oklch(88% 0.012 45)
+- `--color-muted` oklch(47% 0.020 35)
+- `--color-accent` oklch(56% 0.205 25)
+- `--color-accent-ink` oklch(98.5% 0.006 55)
+- `--color-focus` oklch(60% 0.220 25)
 
-Accent footprint stays below 5% of a viewport: active state, focus, link underline,
-and primary action only. There are no decorative gradients.
+Accent stays focused on active states, focus, small markers, and the primary action.
+There are no decorative gradients.
+
+### Dark variant
+
+- `--color-paper` oklch(18% 0.018 30)
+- `--color-paper-2` oklch(22% 0.018 30)
+- `--color-paper-3` oklch(27% 0.018 30)
+- `--color-ink` oklch(96.5% 0.009 55)
+- `--color-ink-2` oklch(78% 0.014 50)
+- `--color-rule` oklch(35% 0.018 35)
+- `--color-muted` oklch(72% 0.014 50)
+- `--color-accent` oklch(67% 0.185 25)
+- `--color-accent-ink` oklch(18% 0.018 30)
+- `--color-focus` oklch(72% 0.195 25)
+
+Dark mode follows the operating-system preference until the user chooses a mode.
+The explicit choice persists locally. Dark surfaces use lightness for elevation, not shadows.
 
 ## Typography
 
-- Display: Playfair Display, weight 700, roman.
-- Body: Inter, weight 400. Retained from the established product UI.
+- Display: Manrope, weight 700, roman.
+- Body: Manrope, weight 400.
 - Mono: browser UI monospace, used only for technical captions and tabular figures.
-- Display tracking: `-0.025em`.
-- Type scale anchor: `--text-display = clamp(3rem, 7vw, 5.25rem)`.
+- Display tracking: `-0.03em`.
+- Type scale anchor: `--text-display = clamp(3rem, 8vw, 5.5rem)`.
 - All data surfaces use tabular figures.
 
 ## Spacing
 
-4-point named scale in `tokens.css`. Components use semantic tokens or mapped Tailwind
-utilities; page rhythm alternates tight work areas with generous editorial intervals.
+4-point named scale in `tokens.css`. Marketing pages use compact, varied section rhythm;
+Workbench pages stay dense and task-oriented. Full-viewport heroes are not used.
 
 ## Motion
 
@@ -60,8 +77,8 @@ utilities; page rhythm alternates tight work areas with generous editorial inter
 
 ## CTA voice
 
-- Primary CTA: solid thread red, 4 px corners, direct verb-first copy.
-- Secondary CTA: hairline outline or underlined text with arrow.
+- Primary CTA: solid thread red, pill shape, direct verb-first copy.
+- Secondary CTA: quiet outline or underlined text with an arrow.
 
 ## Per-page allowances
 
@@ -72,41 +89,44 @@ utilities; page rhythm alternates tight work areas with generous editorial inter
 ## What pages MUST share
 
 - Ariadne wordmark and thread-red placement.
-- Playfair Display + Inter pairing.
-- N9 edge-aligned navigation and Ft4 dense colophon.
-- Hairline dividers, compact controls, 4 px component corners.
-- Single-column section heads and roman headings.
+- Manrope throughout, with 400/700 weight contrast for a quieter interface.
+- N5 floating pill navigation and Ft2 inline minimal footer.
+- Hairline dividers, pill controls, and 8 px card corners.
+- Left-aligned sans-serif headings and direct product copy.
 
 ## What pages MAY differ on
 
 - Pane ratios and density within the Workbench family.
 - Whether data is expressed as tables, charts, or annotated product output.
-- Marketing stage rhythm within Narrative Workflow.
+- Marketing stage rhythm below the Marquee Hero.
 
 ## Exports
 
 ### tokens.css
 
 `tokens.css` at the project root is the canonical, importable source.
+Its `.dark` block carries the complete dark-mode token override.
 
 ### Tailwind v4 `@theme`
 
 ```css
 @theme {
-  --color-paper: oklch(97% 0.010 74);
-  --color-paper-2: oklch(94% 0.014 72);
-  --color-paper-3: oklch(90% 0.016 70);
-  --color-ink: oklch(17% 0.014 30);
-  --color-ink-2: oklch(30% 0.018 30);
-  --color-rule: oklch(82% 0.018 65);
-  --color-muted: oklch(42% 0.018 35);
-  --color-accent: oklch(50% 0.205 25);
-  --color-focus: oklch(55% 0.220 25);
-  --font-display: var(--font-playfair), ui-serif, serif;
-  --font-body: var(--font-inter), ui-sans-serif, sans-serif;
+  --color-paper: oklch(98.5% 0.006 55);
+  --color-paper-2: oklch(96.5% 0.009 55);
+  --color-paper-3: oklch(93.5% 0.012 55);
+  --color-ink: oklch(18% 0.018 30);
+  --color-ink-2: oklch(31% 0.022 30);
+  --color-rule: oklch(88% 0.012 45);
+  --color-muted: oklch(47% 0.020 35);
+  --color-accent: oklch(56% 0.205 25);
+  --color-focus: oklch(60% 0.220 25);
+  --font-display: var(--font-manrope), ui-sans-serif, sans-serif;
+  --font-body: var(--font-manrope), ui-sans-serif, sans-serif;
   --spacing-md: 1rem;
   --spacing-xl: 2.5rem;
-  --text-display: clamp(3rem, 7vw, 5.25rem);
+  --text-display: clamp(3rem, 8vw, 5.5rem);
+  --radius-card: 0.5rem;
+  --radius-pill: 999px;
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
 }
 ```
@@ -117,14 +137,20 @@ utilities; page rhythm alternates tight work areas with generous editorial inter
 {
   "$schema": "https://design-tokens.github.io/community-group/format/",
   "color": {
-    "paper": { "$value": "oklch(97% 0.010 74)", "$type": "color" },
-    "ink": { "$value": "oklch(17% 0.014 30)", "$type": "color" },
-    "accent": { "$value": "oklch(50% 0.205 25)", "$type": "color" },
-    "focus": { "$value": "oklch(55% 0.220 25)", "$type": "color" }
+    "paper": { "$value": "oklch(98.5% 0.006 55)", "$type": "color" },
+    "ink": { "$value": "oklch(18% 0.018 30)", "$type": "color" },
+    "accent": { "$value": "oklch(56% 0.205 25)", "$type": "color" },
+    "focus": { "$value": "oklch(60% 0.220 25)", "$type": "color" }
+  },
+  "colorDark": {
+    "paper": { "$value": "oklch(18% 0.018 30)", "$type": "color" },
+    "ink": { "$value": "oklch(96.5% 0.009 55)", "$type": "color" },
+    "accent": { "$value": "oklch(67% 0.185 25)", "$type": "color" },
+    "focus": { "$value": "oklch(72% 0.195 25)", "$type": "color" }
   },
   "font": {
-    "display": { "$value": "Playfair Display, serif", "$type": "fontFamily" },
-    "body": { "$value": "Inter, sans-serif", "$type": "fontFamily" }
+    "display": { "$value": "Manrope, sans-serif", "$type": "fontFamily" },
+    "body": { "$value": "Manrope, sans-serif", "$type": "fontFamily" }
   },
   "space": {
     "md": { "$value": "1rem", "$type": "dimension" },
@@ -137,25 +163,47 @@ utilities; page rhythm alternates tight work areas with generous editorial inter
 
 ```css
 :root {
-  --background: 97% 0.010 74;
-  --foreground: 17% 0.014 30;
-  --card: 97% 0.010 74;
-  --card-foreground: 17% 0.014 30;
-  --popover: 94% 0.014 72;
-  --popover-foreground: 17% 0.014 30;
-  --primary: 50% 0.205 25;
-  --primary-foreground: 98% 0.008 74;
-  --secondary: 94% 0.014 72;
-  --secondary-foreground: 30% 0.018 30;
-  --muted: 90% 0.016 70;
-  --muted-foreground: 42% 0.018 35;
-  --accent: 90% 0.016 70;
-  --accent-foreground: 17% 0.014 30;
-  --destructive: 50% 0.210 25;
-  --destructive-foreground: 98% 0.008 74;
-  --border: 82% 0.018 65;
-  --input: 82% 0.018 65;
-  --ring: 55% 0.220 25;
-  --radius: 0.25rem;
+  --background: 98.5% 0.006 55;
+  --foreground: 18% 0.018 30;
+  --card: 98.5% 0.006 55;
+  --card-foreground: 18% 0.018 30;
+  --popover: 96.5% 0.009 55;
+  --popover-foreground: 18% 0.018 30;
+  --primary: 56% 0.205 25;
+  --primary-foreground: 98.5% 0.006 55;
+  --secondary: 96.5% 0.009 55;
+  --secondary-foreground: 31% 0.022 30;
+  --muted: 93.5% 0.012 55;
+  --muted-foreground: 47% 0.020 35;
+  --accent: 93.5% 0.012 55;
+  --accent-foreground: 18% 0.018 30;
+  --destructive: 54% 0.210 25;
+  --destructive-foreground: 98.5% 0.006 55;
+  --border: 88% 0.012 45;
+  --input: 88% 0.012 45;
+  --ring: 60% 0.220 25;
+  --radius: 0.5rem;
+}
+
+.dark {
+  --background: 18% 0.018 30;
+  --foreground: 96.5% 0.009 55;
+  --card: 23% 0.020 30;
+  --card-foreground: 96.5% 0.009 55;
+  --popover: 23% 0.020 30;
+  --popover-foreground: 96.5% 0.009 55;
+  --primary: 67% 0.185 25;
+  --primary-foreground: 18% 0.018 30;
+  --secondary: 28% 0.020 30;
+  --secondary-foreground: 96.5% 0.009 55;
+  --muted: 28% 0.020 30;
+  --muted-foreground: 74% 0.014 50;
+  --accent: 32% 0.022 30;
+  --accent-foreground: 96.5% 0.009 55;
+  --destructive: 63% 0.190 25;
+  --destructive-foreground: 18% 0.018 30;
+  --border: 36% 0.018 35;
+  --input: 36% 0.018 35;
+  --ring: 72% 0.195 25;
 }
 ```

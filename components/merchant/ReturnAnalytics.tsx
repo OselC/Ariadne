@@ -30,7 +30,7 @@ export function KPIRow({ kpis }: { kpis: any }) {
       </Card>
       <Card className="lg:col-span-3">
         <CardContent className="p-5">
-          <div className="text-xs text-muted-foreground flex items-center gap-1.5"><Package aria-hidden="true" className="h-3.5 w-3.5" /> Try-ons</div>
+          <div className="flex items-center gap-2 text-xs text-muted-foreground"><Package aria-hidden="true" className="h-3.5 w-3.5" /> Try-ons</div>
           <div className="mt-2 text-2xl font-bold">{typeof kpis.tryOns === "number" ? kpis.tryOns : "—"}</div>
           <div className="text-xs text-[var(--color-success)]">
             {typeof uplift === "number" ? `+${uplift}% conversion uplift` : "Conversion benchmark pending"}
@@ -39,7 +39,7 @@ export function KPIRow({ kpis }: { kpis: any }) {
       </Card>
       <Card className="lg:col-span-3">
         <CardContent className="p-5">
-          <div className="text-xs text-muted-foreground flex items-center gap-1.5"><Truck aria-hidden="true" className="h-3.5 w-3.5" /> RTO saved</div>
+          <div className="flex items-center gap-2 text-xs text-muted-foreground"><Truck aria-hidden="true" className="h-3.5 w-3.5" /> RTO saved</div>
           <div className="mt-2 text-xl font-bold">{typeof saved === "number" ? formatCurrencyIDR(saved) : "—"}</div>
           <div className="text-xs text-muted-foreground">{typeof saved === "number" ? "Modelled saving" : "Cost basis pending"}</div>
         </CardContent>
