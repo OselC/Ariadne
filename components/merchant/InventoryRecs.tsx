@@ -1,7 +1,6 @@
 "use client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { Lightbulb, TrendingUp, AlertCircle } from "lucide-react";
 
 export function InventoryRecs({ sizingDemand, returnsByCategory }: { sizingDemand: any[]; returnsByCategory: any[] }) {
@@ -20,14 +19,14 @@ export function InventoryRecs({ sizingDemand, returnsByCategory }: { sizingDeman
         </CardHeader>
         <CardContent className="space-y-3 text-sm">
           <div className="flex gap-3 border-t py-4 first:border-t-0">
-            <TrendingUp aria-hidden="true" className="mt-0.5 h-4 w-4 shrink-0 text-[var(--color-success)]" />
+            <TrendingUp aria-hidden="true" className="mt-1 h-4 w-4 shrink-0 text-[var(--color-success)]" />
             <div>
               <div className="font-semibold">Review stock depth: Size {topDemand?.size} — highest demand ({topDemand?.demand})</div>
               <div className="text-muted-foreground mt-1">Review the next purchase order against demand and return ratio before increasing depth.</div>
             </div>
           </div>
           <div className="flex gap-3 border-t py-4">
-            <AlertCircle aria-hidden="true" className="mt-0.5 h-4 w-4 shrink-0 text-[var(--color-warning)]" />
+            <AlertCircle aria-hidden="true" className="mt-1 h-4 w-4 shrink-0 text-[var(--color-warning)]" />
             <div>
               <div className="font-semibold">Re-grade: Size {topReturnSize?.size} — highest return ratio</div>
               <div className="text-muted-foreground mt-1">
@@ -53,11 +52,8 @@ export function InventoryRecs({ sizingDemand, returnsByCategory }: { sizingDeman
             </div>
           ))}
           {returnsByCategory.length === 0 && <p className="text-sm text-muted-foreground">No category data yet.</p>}
-          <Button variant="outline" size="sm" className="mt-2 w-full" disabled>
-            Export unavailable
-          </Button>
-          <div className="text-[11px] text-muted-foreground pt-2">
-            Track RTO shipments and packaging waste alongside recommendation outcomes.
+          <div className="border-t pt-3 text-sm leading-6 text-muted-foreground">
+            Export becomes available after a live data source is connected. Track RTO shipments and packaging waste alongside recommendation outcomes.
           </div>
         </CardContent>
       </Card>

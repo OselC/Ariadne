@@ -1,18 +1,14 @@
 import type { Metadata } from "next";
-import { Inter, Playfair_Display } from "next/font/google";
+import { Manrope } from "next/font/google";
 import "./globals.css";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 
-const inter = Inter({
-  subsets: ["latin"],
-  variable: "--font-inter",
-  display: "swap",
-});
+const themeScript = `(function(){try{var saved=localStorage.getItem("ariadne-theme");var dark=saved==="dark"||(saved!=="light"&&matchMedia("(prefers-color-scheme: dark)").matches);document.documentElement.classList.toggle("dark",dark)}catch(e){}})()`;
 
-const playfair = Playfair_Display({
+const manrope = Manrope({
   subsets: ["latin"],
-  variable: "--font-playfair",
+  variable: "--font-manrope",
   display: "swap",
 });
 
@@ -50,10 +46,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className={`${inter.variable} ${playfair.variable}`}>
+    <html lang="en" className={manrope.variable} suppressHydrationWarning>
+      <head><script dangerouslySetInnerHTML={{ __html: themeScript }} /></head>
       <body className="min-h-screen flex flex-col">
         <Navbar />
-        <main className="flex-1">{children}</main>
+        <main className="flex-1 pt-20 sm:pt-24">{children}</main>
         <Footer />
       </body>
     </html>

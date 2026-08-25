@@ -66,7 +66,7 @@ export function FitAnalysisCard({ analysis, selectedSize }: { analysis: FitAnaly
             ["Waist", analysis.body_proportions.waist_cm],
             ["Height", analysis.body_proportions.height_cm],
           ].map(([label, val]) => (
-            <div key={label as string} className="border-l p-2.5 first:border-l-0">
+            <div key={label as string} className="border-l p-3 first:border-l-0">
               <dt className="text-[10px] text-muted-foreground">{label}</dt>
               <dd className="text-sm font-bold">{val} cm</dd>
             </div>
@@ -74,7 +74,7 @@ export function FitAnalysisCard({ analysis, selectedSize }: { analysis: FitAnaly
         </dl>
 
         <div className="border-t pt-3">
-          <div className="text-xs font-semibold flex items-center gap-1.5">
+          <div className="flex items-center gap-2 text-xs font-semibold">
             <Ruler aria-hidden="true" className="h-3.5 w-3.5" /> Fabric note
           </div>
           <p className="mt-1 text-sm text-muted-foreground leading-relaxed">{analysis.fabric_stretch_note}</p>
@@ -82,12 +82,12 @@ export function FitAnalysisCard({ analysis, selectedSize }: { analysis: FitAnaly
 
         {analysis.warnings?.length > 0 && (
           <div className="border border-[var(--color-warning)] bg-[var(--color-warning-soft)] p-3">
-            <div className="flex items-center gap-1.5 text-xs font-semibold">
+            <div className="flex items-center gap-2 text-xs font-semibold">
               <AlertTriangle aria-hidden="true" className="h-3.5 w-3.5" /> Fit warnings
             </div>
-            <ul className="mt-1.5 space-y-1 text-sm">
+            <ul className="mt-2 space-y-1 text-sm">
               {analysis.warnings.map((w, i) => (
-                <li key={i} className="flex gap-1.5">
+                <li key={i} className="flex gap-2">
                   <span>•</span> {w}
                 </li>
               ))}
@@ -96,7 +96,7 @@ export function FitAnalysisCard({ analysis, selectedSize }: { analysis: FitAnaly
         )}
 
         <div className="border border-[var(--color-success)] bg-[var(--color-success-soft)] p-3">
-          <div className="flex items-center gap-1.5 text-xs font-semibold">
+          <div className="flex items-center gap-2 text-xs font-semibold">
             <ShieldCheck aria-hidden="true" className="h-3.5 w-3.5" /> Rationale
           </div>
           <p className="mt-1 text-sm leading-relaxed">{analysis.rationale}</p>

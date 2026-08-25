@@ -25,7 +25,7 @@ function ChartTooltip({ active, payload, label }: any) {
   return (
     <div className="rounded-[var(--radius-card)] border bg-background p-3 text-xs text-foreground shadow-[var(--shadow-card)]">
       {label && <div className="mb-2 font-semibold">{label}</div>}
-      <div className="space-y-1.5 tnum">
+      <div className="space-y-2 tnum">
         {payload.map((item: any) => (
           <div key={item.dataKey ?? item.name} className="flex items-center justify-between gap-5">
             <span className="flex items-center gap-2 text-muted-foreground">

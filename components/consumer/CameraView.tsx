@@ -19,7 +19,11 @@ export function CameraView({
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const captureOptionsRef = useRef<HTMLDivElement>(null);
+  const captureOptionsTriggerRef = useRef<HTMLButtonElement>(null);
   const poseLandmarkerRef = useRef<any>(null);
+  const streamRef = useRef<MediaStream | null>(null);
+  const cameraRequestRef = useRef(0);
   const rafRef = useRef<number | null>(null);
   const historyRef = useRef<number[]>([]);
   const lastBodyRef = useRef<BodyProportions | null>(null);
@@ -42,6 +46,7 @@ export function CameraView({
   }, []);
 
   const start = useCallback(async () => {
+    const requestId = ++cameraRequestRef.current;
     setError(null);
     setCapturedUrl(null);
     setCountdown(null);
@@ -52,6 +57,11 @@ export function CameraView({
         video: { facingMode: "user", width: { ideal: 720 }, height: { ideal: 1280 } },
         audio: false,
       });
+      if (requestId !== cameraRequestRef.current) {
+        s.getTracks().forEach((track) => track.stop());
+        return;
+      }
+      streamRef.current = s;
       setStream(s);
       if (videoRef.current) {
         const video = videoRef.current;
@@ -76,16 +86,25 @@ export function CameraView({
       }, 350);
       if (videoRef.current) (videoRef.current as any)._steadinessInterval = simId;
     } catch (e: any) {
+      if (requestId !== cameraRequestRef.current) return;
       setError(e.message ?? "Camera access denied");
       setStatusMsg("Camera unavailable");
     }
   }, [capturedUrl]);
 
   const stop = useCallback(() => {
-    stream?.getTracks().forEach((tr) => tr.stop());
+    cameraRequestRef.current += 1;
+    const currentStream = streamRef.current ?? (videoRef.current?.srcObject as MediaStream | null);
+    currentStream?.getTracks().forEach((track) => track.stop());
+    streamRef.current = null;
+    if (videoRef.current) videoRef.current.srcObject = null;
     if (videoRef.current && (videoRef.current as any)._steadinessInterval) {
       clearInterval((videoRef.current as any)._steadinessInterval);
     }
+    if (autoTimeoutRef.current) clearTimeout(autoTimeoutRef.current);
+    if (countdownIntervalRef.current) clearInterval(countdownIntervalRef.current);
+    autoTimeoutRef.current = null;
+    countdownIntervalRef.current = null;
     stopDetection();
     if (poseLandmarkerRef.current) {
       try { poseLandmarkerRef.current.close(); } catch {}
@@ -93,7 +112,7 @@ export function CameraView({
     }
     setStream(null);
     setModelReady(false);
-  }, [stream, stopDetection]);
+  }, [stopDetection]);
 
   const ensurePoseModel = useCallback(async () => {
     if (poseLandmarkerRef.current || modelReady || !stream || capturedUrl) return;
@@ -200,19 +219,9 @@ export function CameraView({
     setCapturedUrl(dataUrl);
     onCapture(dataUrl, steadiness, lastBodyRef.current);
     setCountdown(null);
-    const currentStream = stream ?? (videoRef.current?.srcObject as MediaStream | null);
-    if (currentStream) currentStream.getTracks().forEach((tr) => tr.stop());
-    if (videoRef.current && (videoRef.current as any)._steadinessInterval) {
-      clearInterval((videoRef.current as any)._steadinessInterval);
-    }
-    stopDetection();
-    if (poseLandmarkerRef.current) {
-      try { poseLandmarkerRef.current.close(); } catch {}
-      poseLandmarkerRef.current = null;
-    }
-    setStream(null);
+    stop();
     setStatusMsg("Photo captured — camera off");
-  }, [onCapture, steadiness, stream, stopDetection]);
+  }, [onCapture, steadiness, stop]);
 
   const retake = () => {
     setCapturedUrl(null);
@@ -236,13 +245,7 @@ export function CameraView({
       setCapturedUrl(dataUrl);
       onCapture(dataUrl, 0.95);
       setStatusMsg("Uploaded image ready — camera off");
-      const currentStream = stream ?? (videoRef.current?.srcObject as MediaStream | null);
-      if (currentStream) currentStream.getTracks().forEach((tr) => tr.stop());
-      if (videoRef.current && (videoRef.current as any)._steadinessInterval) {
-        clearInterval((videoRef.current as any)._steadinessInterval);
-      }
-      stopDetection();
-      setStream(null);
+      stop();
     };
     reader.readAsDataURL(file);
     e.target.value = "";
@@ -251,7 +254,7 @@ export function CameraView({
   const startTimerCapture = useCallback(() => {
     if (countdown !== null) return;
     setCountdown(timerSeconds);
-    setStatusMsg(`Timer: ${timerSeconds}s — get ready...`);
+    setStatusMsg(`Timer: ${timerSeconds}s — get ready…`);
     countdownIntervalRef.current = setInterval(() => {
       setCountdown((prev) => {
         if (prev === null) return null;
@@ -261,7 +264,7 @@ export function CameraView({
           return null;
         }
         const next = prev - 1;
-        setStatusMsg(`Timer: ${next}s...`);
+        setStatusMsg(`Timer: ${next}s…`);
         return next;
       });
     }, 1000);
@@ -285,7 +288,7 @@ export function CameraView({
     const isSteady = steadiness > 0.78 && hasBody && historyRef.current.length >= 5;
     if (isSteady) {
       if (!autoTimeoutRef.current) {
-        setStatusMsg("Auto: steady — capturing in 1.2s...");
+        setStatusMsg("Auto: steady — capturing in 1.2s…");
         autoTimeoutRef.current = setTimeout(() => {
           if (lastBodyRef.current && !capturedUrl && captureMode === "auto") capture();
           autoTimeoutRef.current = null;
@@ -295,6 +298,10 @@ export function CameraView({
       if (autoTimeoutRef.current) {
         clearTimeout(autoTimeoutRef.current);
         autoTimeoutRef.current = null;
+<<<<<<< HEAD
+=======
+        setStatusMsg(modelReady ? "Auto: hold steady — entire body visible" : "Auto: hold steady…");
+>>>>>>> d020a2a8dbc3f2f94bbabefb03bf97a10864ae5c
       }
       if (!hasBody) setStatusMsg("Auto: show entire body");
       else setStatusMsg("Auto: hold steady — entire body visible");
@@ -306,6 +313,11 @@ export function CameraView({
       }
     };
   }, [steadiness, captureMode, capturedUrl, disabled, countdown, capture, modelReady]);
+
+  const closeCaptureOptions = useCallback((restoreFocus = false) => {
+    setDropdownOpen(false);
+    if (restoreFocus) captureOptionsTriggerRef.current?.focus();
+  }, []);
 
   useEffect(() => {
     if (captureMode === "auto") {
@@ -327,13 +339,26 @@ export function CameraView({
 
   useEffect(() => {
     if (!dropdownOpen) return;
+    const focusFrame = requestAnimationFrame(() => {
+      captureOptionsRef.current?.querySelector<HTMLButtonElement>("button")?.focus();
+    });
     const close = (e: MouseEvent) => {
       const target = e.target as HTMLElement;
       if (!target.closest("[data-capture-dropdown]")) setDropdownOpen(false);
     };
+    const closeOnEscape = (e: KeyboardEvent) => {
+      if (e.key !== "Escape") return;
+      e.preventDefault();
+      closeCaptureOptions(true);
+    };
     document.addEventListener("mousedown", close);
-    return () => document.removeEventListener("mousedown", close);
-  }, [dropdownOpen]);
+    document.addEventListener("keydown", closeOnEscape);
+    return () => {
+      cancelAnimationFrame(focusFrame);
+      document.removeEventListener("mousedown", close);
+      document.removeEventListener("keydown", closeOnEscape);
+    };
+  }, [closeCaptureOptions, dropdownOpen]);
 
   const modeLabel = captureMode === "auto" ? "Auto-Capture" : captureMode === "timer" ? `Timer ${timerSeconds}s` : "Capture";
   const ModeIcon = captureMode === "auto" ? Zap : captureMode === "timer" ? Clock : Camera;
@@ -344,7 +369,7 @@ export function CameraView({
         <div className="relative aspect-[3/4] max-h-[460px] w-full max-w-[345px] shrink-0 overflow-hidden bg-[var(--color-dark-paper)]">
         <video ref={videoRef} playsInline muted className={`h-full w-full object-cover scale-x-[-1] ${capturedUrl ? "hidden" : "block"}`} />
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        {capturedUrl && <img src={capturedUrl} alt="Captured frame" className="h-full w-full object-cover" />}
+        {capturedUrl && <img src={capturedUrl} alt="Captured frame" width={768} height={1024} className="h-full w-full object-cover" />}
 
         {!capturedUrl && (
           <div className="absolute inset-0 pointer-events-none flex items-center justify-center">
@@ -355,8 +380,8 @@ export function CameraView({
         )}
 
         {countdown !== null && !capturedUrl && (
-          <div className="absolute inset-0 flex items-center justify-center bg-black/50">
-            <div className="flex h-28 w-28 items-center justify-center rounded-full bg-white text-5xl font-bold text-[#e63946] shadow-xl">
+          <div className="absolute inset-0 flex items-center justify-center bg-[var(--color-dark-paper)]">
+            <div className="flex h-28 w-28 items-center justify-center rounded-[var(--radius-card)] bg-[var(--color-paper)] text-5xl font-bold text-primary shadow-[var(--shadow-card)]">
               {countdown}
             </div>
           </div>
@@ -367,8 +392,13 @@ export function CameraView({
             {steadiness > 0.78 ? <CheckCircle2 aria-hidden="true" className="h-3 w-3 mr-1" /> : <AlertTriangle aria-hidden="true" className="h-3 w-3 mr-1" />}
             {Math.round(steadiness * 100)}% steady
           </Badge>
+<<<<<<< HEAD
           <span className="hidden border border-[var(--color-rule-2)] bg-[var(--color-dark-paper-2)] px-2.5 py-1 text-[11px] text-[var(--color-dark-ink)] sm:inline">
             {captureMode === "auto" ? (modelReady ? "MediaPipe Pose · live" : "Loading pose…") : captureMode === "timer" ? "Timer mode" : "Manual mode"}
+=======
+          <span className="hidden border border-[var(--color-rule-2)] bg-[var(--color-dark-paper-2)] px-3 py-1 text-[11px] text-[var(--color-dark-ink)] sm:inline">
+            {modelReady ? "MediaPipe Pose · live" : "Readiness simulation"}
+>>>>>>> d020a2a8dbc3f2f94bbabefb03bf97a10864ae5c
           </span>
         </div>
 
@@ -409,6 +439,7 @@ export function CameraView({
             </Button>
             <div className="relative flex flex-1 gap-0" data-capture-dropdown>
               <Button
+                ref={captureOptionsTriggerRef}
                 variant="thread"
                 className="flex-1 rounded-r-none"
                 onClick={handleCaptureClick}
@@ -418,40 +449,62 @@ export function CameraView({
               </Button>
               <Button
                 variant="thread"
-                className="rounded-l-none border-l border-white/20 px-2"
+                className="rounded-l-none border-l border-[var(--color-rule-2)] px-2"
                 onClick={() => setDropdownOpen((v) => !v)}
                 disabled={disabled || countdown !== null}
                 aria-label="Capture options"
+                aria-haspopup="dialog"
+                aria-expanded={dropdownOpen}
+                aria-controls="capture-options"
               >
-                <ChevronDown aria-hidden="true" className={`h-4 w-4 transition-transform ${dropdownOpen ? "rotate-180" : ""}`} />
+                <ChevronDown aria-hidden="true" className={`h-4 w-4 transition-transform [transition-duration:var(--dur-micro)] [transition-timing-function:var(--ease-out)] ${dropdownOpen ? "rotate-180" : ""}`} />
               </Button>
               {dropdownOpen && (
-                <div className="absolute bottom-full right-0 mb-2 z-20 w-56 rounded-xl border bg-card shadow-xl overflow-hidden">
-                  <button
-                    onClick={() => { setCaptureMode("capture"); setDropdownOpen(false); }}
-                    className={`flex w-full items-center gap-2 px-3 py-2.5 text-sm text-left hover:bg-muted ${captureMode === "capture" ? "bg-muted font-semibold" : ""}`}
+                <div ref={captureOptionsRef} id="capture-options" role="dialog" aria-modal="false" aria-label="Capture options" className="absolute bottom-full right-0 mb-2 w-56 overflow-hidden rounded-[var(--radius-card)] border bg-card shadow-[var(--shadow-card)] [z-index:var(--z-dropdown)]">
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    aria-pressed={captureMode === "capture"}
+                    onClick={() => { setCaptureMode("capture"); closeCaptureOptions(true); }}
+                    className={`w-full justify-start rounded-none px-3 ${captureMode === "capture" ? "bg-muted font-semibold" : ""}`}
                   >
                     <Camera className="h-4 w-4" /> Capture <span className="ml-auto text-xs text-muted-foreground">Manual</span>
+<<<<<<< HEAD
                   </button>
                   <button
                     onClick={() => { historyRef.current = []; lastBodyRef.current = null; if (autoTimeoutRef.current) { clearTimeout(autoTimeoutRef.current); autoTimeoutRef.current = null; } setCaptureMode("auto"); setDropdownOpen(false); }}
                     className={`flex w-full items-center gap-2 px-3 py-2.5 text-sm text-left hover:bg-muted ${captureMode === "auto" ? "bg-muted font-semibold" : ""}`}
+=======
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    aria-pressed={captureMode === "auto"}
+                    onClick={() => { setCaptureMode("auto"); closeCaptureOptions(true); }}
+                    className={`w-full justify-start rounded-none px-3 ${captureMode === "auto" ? "bg-muted font-semibold" : ""}`}
+>>>>>>> d020a2a8dbc3f2f94bbabefb03bf97a10864ae5c
                   >
                     <Zap className="h-4 w-4" /> Auto-Capture <span className="ml-auto text-xs text-muted-foreground">Entire body</span>
-                  </button>
-                  <div className={`px-3 py-2.5 ${captureMode === "timer" ? "bg-muted" : ""}`}>
-                    <button
+                  </Button>
+                  <div className={`px-3 py-3 ${captureMode === "timer" ? "bg-muted" : ""}`}>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      aria-pressed={captureMode === "timer"}
                       onClick={() => { setCaptureMode("timer"); }}
-                      className="flex w-full items-center gap-2 text-sm text-left"
+                      className="w-full justify-start rounded-none px-0"
                     >
                       <Clock className="h-4 w-4" /> Timer
-                    </button>
+                    </Button>
                     <div className="mt-2 flex items-center gap-2">
                       <span className="text-xs text-muted-foreground">Seconds:</span>
                       <select
                         value={timerSeconds}
                         onChange={(e) => { setTimerSeconds(Number(e.target.value)); setCaptureMode("timer"); }}
-                        className="rounded-lg border bg-background px-2 py-1 text-sm"
+                        className="h-11 rounded-[var(--radius-input)] border border-input bg-background px-2 text-sm outline outline-2 outline-transparent hover:bg-secondary/40 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-ring disabled:cursor-not-allowed disabled:opacity-55"
                       >
                         <option value={3}>3s</option>
                         <option value={5}>5s</option>

@@ -12,9 +12,9 @@ import { Separator } from "@/components/ui/separator";
 import { formatCurrencyIDR } from "@/lib/utils";
 import { calculateFitAnalysis, type BodyProportions } from "@/lib/mediapipe";
 
-/* Hallmark · genre: editorial · macrostructure: Workbench · design-system: design.md · designed-as-app
+/* Hallmark · genre: modern-minimal · macrostructure: Workbench · design-system: design.md · designed-as-app
  * panes: camera=4 · catalogue=5 · output=3 · F3 specs=key/value/unit
- * enrichment: none · nav: N9 · footer: Ft4
+ * theme: Coral · enrichment: none · nav: N5 · footer: Ft2
  */
 
 type Product = any;
@@ -99,21 +99,34 @@ export default function TryOnPage() {
     }
   };
 
+  const actionHint = !frame && !selected
+    ? "Capture a frame and choose a garment to enable analysis and rendering."
+    : !frame
+      ? "Capture or upload a frame to continue."
+      : !selected
+        ? "Choose a garment to continue."
+        : "Frame and garment ready for either AI layer.";
+
   return (
-    <div className="page-shell py-10 sm:py-12">
-      <header className="grid gap-5 border-b pb-8 lg:grid-cols-12">
-        <div className="lg:col-span-7">
-          <h1 className="text-3xl font-bold tracking-[-0.025em] sm:text-4xl">Live try-on workbench</h1>
+    <div className="page-shell py-6 sm:py-8">
+      <header className="grid min-w-0 gap-4 border-b pb-6 lg:grid-cols-12">
+        <div className="min-w-0 lg:col-span-7">
+          <h1 className="text-3xl font-bold sm:text-4xl">Live try-on workbench</h1>
           <p className="mt-3 max-w-2xl leading-7 text-muted-foreground">
             Frame the body, choose a garment, then compare fit analysis with the rendered result.
           </p>
         </div>
+<<<<<<< HEAD
         <div className="self-end text-sm text-muted-foreground lg:col-span-5 lg:text-right">
           Browser camera · MediaPipe Pose · IDM-VTON · Supabase
+=======
+        <div className="min-w-0 self-end text-sm text-muted-foreground [overflow-wrap:anywhere] lg:col-span-5 lg:text-right">
+          Browser camera · Hugging Face Qwen2-VL · IDM-VTON · Supabase
+>>>>>>> d020a2a8dbc3f2f94bbabefb03bf97a10864ae5c
         </div>
       </header>
 
-      <div className="mt-8 grid min-w-0 gap-8 lg:grid-cols-12 lg:gap-6">
+      <div className="mt-6 grid min-w-0 gap-6 lg:grid-cols-12">
         <section className="min-w-0 space-y-4 lg:col-span-4" aria-labelledby="camera-heading">
           <div className="border-b pb-3">
             <h2 id="camera-heading" className="text-xl font-bold">Frame</h2>
@@ -138,7 +151,7 @@ export default function TryOnPage() {
               <CardContent className="space-y-5 p-5">
                 <div className="flex gap-4">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={selected.image_url} alt={selected.name} className="h-24 w-20 shrink-0 object-cover" />
+                  <img src={selected.image_url} alt={selected.name} width={400} height={480} className="h-24 w-20 shrink-0 object-cover" />
                   <div className="min-w-0">
                     <div className="text-sm text-muted-foreground">{selected.brand}</div>
                     <div className="mt-1 text-base font-bold leading-tight">{selected.name}</div>
@@ -155,7 +168,7 @@ export default function TryOnPage() {
                         key={size}
                         onClick={() => setSelectedSize(size)}
                         aria-pressed={selectedSize === size}
-                        className={`min-h-11 min-w-11 border px-4 text-sm font-semibold transition-[background-color,color,transform] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring active:translate-y-px disabled:cursor-not-allowed disabled:opacity-55 ${selectedSize === size ? "border-primary bg-primary text-primary-foreground" : "hover:bg-secondary"}`}
+                        className={`min-h-11 min-w-11 border px-4 text-sm font-semibold transition-[background-color,color,transform] [transition-duration:var(--dur-micro)] [transition-timing-function:var(--ease-out)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring active:translate-y-px disabled:cursor-not-allowed disabled:opacity-55 ${selectedSize === size ? "border-primary bg-primary text-primary-foreground" : "hover:bg-secondary"}`}
                       >
                         {size}
                       </button>
@@ -174,17 +187,17 @@ export default function TryOnPage() {
                     ))}
                   </dl>
                 </div>
+                <p id="try-on-action-help" className="min-h-5 text-xs leading-5 text-muted-foreground">{actionHint}</p>
                 <div className="grid gap-2 sm:grid-cols-2">
-                  <Button variant="outline" onClick={runAnalysis} disabled={!frame || analyzing || trying} data-state={analyzing ? "loading" : undefined}>
+                  <Button aria-describedby="try-on-action-help" variant="outline" onClick={runAnalysis} disabled={!frame || analyzing || trying} data-state={analyzing ? "loading" : undefined}>
                     {analyzing ? <Loader2 aria-hidden="true" className="h-4 w-4 animate-spin" /> : <Wand2 aria-hidden="true" className="h-4 w-4" />}
                     {analyzing ? "Analyzing…" : "Analyze fit"}
                   </Button>
-                  <Button variant="thread" onClick={runTryOn} disabled={!frame || trying || analyzing} data-state={trying ? "loading" : undefined}>
+                  <Button aria-describedby="try-on-action-help" variant="thread" onClick={runTryOn} disabled={!frame || trying || analyzing} data-state={trying ? "loading" : undefined}>
                     {trying ? <Loader2 aria-hidden="true" className="h-4 w-4 animate-spin" /> : <ScanLine aria-hidden="true" className="h-4 w-4" />}
                     {trying ? "Rendering…" : "Render try-on"}
                   </Button>
                 </div>
-                <p className="text-xs leading-5 text-muted-foreground">Fit analysis and rendering may run independently; each result remains visible when the other finishes.</p>
                 <p className="min-h-5 text-xs text-destructive" role="alert">{actionError}</p>
               </CardContent>
             </Card>
