@@ -1,7 +1,6 @@
 "use client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { Lightbulb, TrendingUp, AlertCircle } from "lucide-react";
 
 export function InventoryRecs({ sizingDemand, returnsByCategory }: { sizingDemand: any[]; returnsByCategory: any[] }) {
@@ -53,11 +52,8 @@ export function InventoryRecs({ sizingDemand, returnsByCategory }: { sizingDeman
             </div>
           ))}
           {returnsByCategory.length === 0 && <p className="text-sm text-muted-foreground">No category data yet.</p>}
-          <Button variant="outline" size="sm" className="mt-2 w-full" disabled>
-            Export unavailable
-          </Button>
-          <div className="text-[11px] text-muted-foreground pt-2">
-            Track RTO shipments and packaging waste alongside recommendation outcomes.
+          <div className="border-t pt-3 text-sm leading-6 text-muted-foreground">
+            Export becomes available after a live data source is connected. Track RTO shipments and packaging waste alongside recommendation outcomes.
           </div>
         </CardContent>
       </Card>

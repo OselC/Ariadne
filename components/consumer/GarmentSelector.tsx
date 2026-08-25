@@ -32,6 +32,7 @@ export function GarmentSelector({
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [retry, setRetry] = useState(0);
+  const hasFilters = filter !== "all" || q.length > 0;
 
   useEffect(() => {
     let active = true;
@@ -86,8 +87,9 @@ export function GarmentSelector({
           <button
             key={val}
             onClick={() => setFilter(val)}
+            aria-pressed={filter === val}
             className={cn(
-              "min-h-11 shrink-0 rounded-[var(--radius-input)] border px-4 text-xs font-medium transition-[background-color,color,transform] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring active:translate-y-px disabled:cursor-not-allowed disabled:opacity-55",
+              "min-h-11 shrink-0 rounded-[var(--radius-input)] border px-4 text-xs font-medium transition-[background-color,color,transform] [transition-duration:var(--dur-micro)] [transition-timing-function:var(--ease-out)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring active:translate-y-px disabled:cursor-not-allowed disabled:opacity-55",
               filter === val ? "bg-primary text-primary-foreground border-primary" : "bg-background hover:bg-muted"
             )}
           >
@@ -112,13 +114,13 @@ export function GarmentSelector({
               aria-pressed={selectedId === p.id}
               aria-label={`Select ${p.name} by ${p.brand}`}
               className={cn(
-                "group overflow-hidden rounded-[var(--radius-card)] border bg-card text-left text-card-foreground transition-[background-color,transform] hover:bg-secondary focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring active:translate-y-px disabled:cursor-not-allowed disabled:opacity-55",
+                "group overflow-hidden rounded-[var(--radius-card)] border bg-card text-left text-card-foreground transition-[background-color,transform] [transition-duration:var(--dur-micro)] [transition-timing-function:var(--ease-out)] hover:bg-secondary focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring active:translate-y-px disabled:cursor-not-allowed disabled:opacity-55",
                 selectedId === p.id && "border-primary outline outline-1 outline-primary"
               )}
             >
               <div className="aspect-[4/5] overflow-hidden bg-muted relative">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={p.image_url} alt="" className="h-full w-full object-cover" />
+                <img src={p.image_url} alt="" width={800} height={1000} className="h-full w-full object-cover" />
                 <Badge className="absolute top-2 left-2 px-2 py-1 text-[10px]">{p.stretch_level} stretch</Badge>
               </div>
               <CardContent className="p-3">
@@ -144,8 +146,12 @@ export function GarmentSelector({
       )}
 
       {!loading && !error && products.length === 0 && (
-        <div className="border border-dashed p-8 text-center text-sm text-muted-foreground">
-          No garments match. Try another brand or category.
+        <div className="flex flex-col items-center gap-4 border border-dashed p-8 text-center text-sm text-muted-foreground">
+          <Shirt aria-hidden="true" className="h-5 w-5" />
+          <span>{hasFilters ? "No garments match the current search and category." : "No garments are available yet."}</span>
+          <Button type="button" variant="outline" size="sm" onClick={() => { if (hasFilters) { setQ(""); setFilter("all"); } else { setRetry((value) => value + 1); } }}>
+            {hasFilters ? "Clear filters" : "Refresh catalogue"}
+          </Button>
         </div>
       )}
     </div>

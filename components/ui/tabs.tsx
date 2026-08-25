@@ -79,7 +79,7 @@ export function TabsTrigger({
       role="tab"
       aria-selected={active}
       className={cn(
-        "inline-flex min-h-11 items-center justify-center whitespace-nowrap border-b-2 border-transparent px-0 text-sm font-semibold transition-[color,transform] hover:text-foreground focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring active:translate-y-px disabled:cursor-not-allowed disabled:opacity-55",
+        "inline-flex min-h-11 items-center justify-center whitespace-nowrap border-b-2 border-transparent px-0 text-sm font-semibold transition-[color,transform] [transition-duration:var(--dur-micro)] [transition-timing-function:var(--ease-out)] hover:text-foreground focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring active:translate-y-px disabled:cursor-not-allowed disabled:opacity-55",
         active && "border-primary text-foreground",
         className
       )}

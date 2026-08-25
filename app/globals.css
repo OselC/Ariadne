@@ -1,8 +1,9 @@
-/* Hallmark · genre: editorial · macrostructure: Narrative Workflow + Workbench · design-system: design.md · designed-as-app
+/* Hallmark · genre: modern-minimal · macrostructure: Marquee Hero + Workbench · design-system: design.md · designed-as-app
  * pre-emit critique: P5 H5 E5 S5 R5 V5
- * theme: custom · vibe: editorial fashion, technical restraint, red thread
- * nav: N9 edge-aligned · footer: Ft4 dense colophon · slop: pass (42–45)
- * honest: pass (46) · chrome: pass (47) · tokens: pass (48) · mobile: pass (34, 49–57)
+ * theme: Coral light/dark · vibe: premium technology, compact rhythm, adaptive contrast
+ * nav: N5 floating pill · footer: Ft2 inline rule · slop: pass (42–45) · contrast: pass (40–41)
+ * honest: pass (46) · chrome: pass (47) · tokens: pass (48) · responsive: pass (49) · icons: pass (30)
+ * mobile: pass (34, 49, 50–57)
  */
 @import "../tokens.css";
 
@@ -12,48 +13,50 @@
 
 @layer base {
   :root {
-    --background: 97% 0.010 74;
-    --foreground: 17% 0.014 30;
-    --card: 97% 0.010 74;
-    --card-foreground: 17% 0.014 30;
-    --popover: 94% 0.014 72;
-    --popover-foreground: 17% 0.014 30;
-    --primary: 50% 0.205 25;
-    --primary-foreground: 98% 0.008 74;
-    --secondary: 94% 0.014 72;
-    --secondary-foreground: 30% 0.018 30;
-    --muted: 90% 0.016 70;
-    --muted-foreground: 42% 0.018 35;
-    --accent: 90% 0.016 70;
-    --accent-foreground: 17% 0.014 30;
-    --destructive: 50% 0.210 25;
-    --destructive-foreground: 98% 0.008 74;
-    --border: 82% 0.018 65;
-    --input: 82% 0.018 65;
-    --ring: 55% 0.220 25;
-    --radius: 0.25rem;
+    color-scheme: light;
+    --background: 98.5% 0.006 55;
+    --foreground: 18% 0.018 30;
+    --card: 98.5% 0.006 55;
+    --card-foreground: 18% 0.018 30;
+    --popover: 96.5% 0.009 55;
+    --popover-foreground: 18% 0.018 30;
+    --primary: 56% 0.205 25;
+    --primary-foreground: 98.5% 0.006 55;
+    --secondary: 96.5% 0.009 55;
+    --secondary-foreground: 31% 0.022 30;
+    --muted: 93.5% 0.012 55;
+    --muted-foreground: 47% 0.020 35;
+    --accent: 93.5% 0.012 55;
+    --accent-foreground: 18% 0.018 30;
+    --destructive: 54% 0.210 25;
+    --destructive-foreground: 98.5% 0.006 55;
+    --border: 88% 0.012 45;
+    --input: 88% 0.012 45;
+    --ring: 60% 0.220 25;
+    --radius: 0.5rem;
   }
 
   .dark {
-    --background: 19% 0.014 30;
-    --foreground: 95% 0.010 74;
-    --card: 24% 0.016 30;
-    --card-foreground: 95% 0.010 74;
-    --popover: 24% 0.016 30;
-    --popover-foreground: 95% 0.010 74;
-    --primary: 64% 0.185 25;
-    --primary-foreground: 17% 0.014 30;
-    --secondary: 28% 0.016 30;
-    --secondary-foreground: 92% 0.010 74;
-    --muted: 28% 0.016 30;
-    --muted-foreground: 72% 0.014 50;
-    --accent: 32% 0.018 30;
-    --accent-foreground: 95% 0.010 74;
+    color-scheme: dark;
+    --background: 18% 0.018 30;
+    --foreground: 96.5% 0.009 55;
+    --card: 23% 0.020 30;
+    --card-foreground: 96.5% 0.009 55;
+    --popover: 23% 0.020 30;
+    --popover-foreground: 96.5% 0.009 55;
+    --primary: 67% 0.185 25;
+    --primary-foreground: 18% 0.018 30;
+    --secondary: 28% 0.020 30;
+    --secondary-foreground: 96.5% 0.009 55;
+    --muted: 28% 0.020 30;
+    --muted-foreground: 74% 0.014 50;
+    --accent: 32% 0.022 30;
+    --accent-foreground: 96.5% 0.009 55;
     --destructive: 63% 0.190 25;
-    --destructive-foreground: 17% 0.014 30;
+    --destructive-foreground: 18% 0.018 30;
     --border: 36% 0.018 35;
     --input: 36% 0.018 35;
-    --ring: 68% 0.200 25;
+    --ring: 72% 0.195 25;
   }
 
   * {
@@ -67,6 +70,7 @@
 
   body {
     @apply bg-background text-foreground font-sans antialiased;
+    letter-spacing: -0.01em;
     min-width: 0;
   }
 
@@ -75,6 +79,7 @@
   h3 {
     @apply font-display;
     font-style: normal;
+    letter-spacing: -0.03em;
     min-width: 0;
     overflow-wrap: anywhere;
   }

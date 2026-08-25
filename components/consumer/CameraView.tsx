@@ -17,6 +17,8 @@ export function CameraView({
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const captureOptionsRef = useRef<HTMLDivElement>(null);
+  const captureOptionsTriggerRef = useRef<HTMLButtonElement>(null);
   const poseLandmarkerRef = useRef<any>(null);
   const streamRef = useRef<MediaStream | null>(null);
   const cameraRequestRef = useRef(0);
@@ -264,15 +266,33 @@ export function CameraView({
     };
   }, [steadiness, captureMode, capturedUrl, disabled, countdown, capture, modelReady]);
 
+  const closeCaptureOptions = useCallback((restoreFocus = false) => {
+    setDropdownOpen(false);
+    if (restoreFocus) captureOptionsTriggerRef.current?.focus();
+  }, []);
+
   useEffect(() => {
     if (!dropdownOpen) return;
+    const focusFrame = requestAnimationFrame(() => {
+      captureOptionsRef.current?.querySelector<HTMLButtonElement>("button")?.focus();
+    });
     const close = (e: MouseEvent) => {
       const target = e.target as HTMLElement;
       if (!target.closest("[data-capture-dropdown]")) setDropdownOpen(false);
     };
+    const closeOnEscape = (e: KeyboardEvent) => {
+      if (e.key !== "Escape") return;
+      e.preventDefault();
+      closeCaptureOptions(true);
+    };
     document.addEventListener("mousedown", close);
-    return () => document.removeEventListener("mousedown", close);
-  }, [dropdownOpen]);
+    document.addEventListener("keydown", closeOnEscape);
+    return () => {
+      cancelAnimationFrame(focusFrame);
+      document.removeEventListener("mousedown", close);
+      document.removeEventListener("keydown", closeOnEscape);
+    };
+  }, [closeCaptureOptions, dropdownOpen]);
 
   const modeLabel = captureMode === "auto" ? "Auto-Capture" : captureMode === "timer" ? `Timer ${timerSeconds}s` : "Capture";
   const ModeIcon = captureMode === "auto" ? Zap : captureMode === "timer" ? Clock : Camera;
@@ -283,7 +303,7 @@ export function CameraView({
         <div className="relative aspect-[3/4] max-h-[460px] w-full max-w-[345px] shrink-0 overflow-hidden bg-[var(--color-dark-paper)]">
         <video ref={videoRef} playsInline muted className={`h-full w-full object-cover scale-x-[-1] ${capturedUrl ? "hidden" : "block"}`} />
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        {capturedUrl && <img src={capturedUrl} alt="Captured frame" className="h-full w-full object-cover" />}
+        {capturedUrl && <img src={capturedUrl} alt="Captured frame" width={768} height={1024} className="h-full w-full object-cover" />}
 
         {!capturedUrl && (
           <div className="absolute inset-0 pointer-events-none flex items-center justify-center">
@@ -348,6 +368,7 @@ export function CameraView({
             </Button>
             <div className="relative flex flex-1 gap-0" data-capture-dropdown>
               <Button
+                ref={captureOptionsTriggerRef}
                 variant="thread"
                 className="flex-1 rounded-r-none"
                 onClick={handleCaptureClick}
@@ -365,16 +386,16 @@ export function CameraView({
                 aria-expanded={dropdownOpen}
                 aria-controls="capture-options"
               >
-                <ChevronDown aria-hidden="true" className={`h-4 w-4 transition-transform ${dropdownOpen ? "rotate-180" : ""}`} />
+                <ChevronDown aria-hidden="true" className={`h-4 w-4 transition-transform [transition-duration:var(--dur-micro)] [transition-timing-function:var(--ease-out)] ${dropdownOpen ? "rotate-180" : ""}`} />
               </Button>
               {dropdownOpen && (
-                <div id="capture-options" role="dialog" aria-label="Capture options" className="absolute bottom-full right-0 mb-2 w-56 overflow-hidden rounded-[var(--radius-card)] border bg-card shadow-[var(--shadow-card)] [z-index:var(--z-dropdown)]">
+                <div ref={captureOptionsRef} id="capture-options" role="dialog" aria-modal="false" aria-label="Capture options" className="absolute bottom-full right-0 mb-2 w-56 overflow-hidden rounded-[var(--radius-card)] border bg-card shadow-[var(--shadow-card)] [z-index:var(--z-dropdown)]">
                   <Button
                     type="button"
                     variant="ghost"
                     size="sm"
                     aria-pressed={captureMode === "capture"}
-                    onClick={() => { setCaptureMode("capture"); setDropdownOpen(false); }}
+                    onClick={() => { setCaptureMode("capture"); closeCaptureOptions(true); }}
                     className={`w-full justify-start rounded-none px-3 ${captureMode === "capture" ? "bg-muted font-semibold" : ""}`}
                   >
                     <Camera className="h-4 w-4" /> Capture <span className="ml-auto text-xs text-muted-foreground">Manual</span>
@@ -384,7 +405,7 @@ export function CameraView({
                     variant="ghost"
                     size="sm"
                     aria-pressed={captureMode === "auto"}
-                    onClick={() => { setCaptureMode("auto"); setDropdownOpen(false); }}
+                    onClick={() => { setCaptureMode("auto"); closeCaptureOptions(true); }}
                     className={`w-full justify-start rounded-none px-3 ${captureMode === "auto" ? "bg-muted font-semibold" : ""}`}
                   >
                     <Zap className="h-4 w-4" /> Auto-Capture <span className="ml-auto text-xs text-muted-foreground">Entire body</span>
