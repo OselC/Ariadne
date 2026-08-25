@@ -1,10 +1,10 @@
-# Ariadne — FitVision AI
+# Ariadne
 
-> **“The digital thread to your perfect fit.”** Guiding you through the fashion labyrinth.
+> **“The digital thread to your perfect fit.”**
 
 Smart Commerce & Return-Prevention Ecosystem for fashion e-commerce. Combines **Real-Time Body & Fabric Analysis** with **Virtual Try-On (VTON)** to eliminate sizing uncertainty, while giving merchants **Supply Chain Insights** that cut return costs & deadstock.
 
-For **COMPFEST AIC — AI for the Backbone of the Economy** · Primary: Smart Commerce · Secondary: Smart Logistics.
+For **COMPFEST AIC — AI for the Backbone of the Economy** · Smart Commerce.
 
 ---
 
@@ -34,8 +34,6 @@ MediaPipe Pose (client) → steadiness + body measurement → clean Base64 frame
 
 ## Quick Start
 
-> **Do not auto-install** — run manually as requested.
-
 ```bash
 # 1. install (you run manually)
 npm install
@@ -43,7 +41,7 @@ npm install
 # 2. env
 cp .env.example .env.local
 # fill: NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_ANON_KEY,
-#       SUPABASE_SERVICE_ROLE_KEY, REPLICATE_API_TOKEN
+#       SUPABASE_SERVICE_ROLE_KEY
 # For demo without keys:
 #   NEXT_PUBLIC_MOCK_AI=true
 
@@ -55,8 +53,6 @@ npm run dev   # → http://localhost:3000
 ```
 
 Open `/try-on` for consumer flow, `/dashboard` for merchant analytics.
-
-**Mock mode:** `NEXT_PUBLIC_MOCK_AI=true` bypasses Replicate with realistic fixtures — perfect for hackathon demo without keys/billing. MediaPipe fit analysis works offline.
 
 ---
 
@@ -96,10 +92,4 @@ Dataset curation (20–50 multi-angle): lovechara.work, tumblr artist-refs, @Lol
 | Merchant Dashboard Lead | Louis Alexander Pekandi |
 | Product & Pitch Lead | Putri Khairani Azzahra |
 
-## Tagline Origins
-
-*Ariadne gave Theseus a red thread to escape the labyrinth.* The **Fabric Thread** (weaving) + **Tech Thread** (live data threads) — our AI weaves garments onto your moving body with mathematical precision.
-
----
-
-Built for COMPFEST AIC. Stack: Next.js, Tailwind, shadcn/ui, Supabase, MediaPipe Pose, Replicate IDM-VTON, LoRA.
+Stack: Next.js, Tailwind, shadcn/ui, Supabase, MediaPipe Pose, Replicate IDM-VTON, LoRA.

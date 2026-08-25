@@ -298,10 +298,7 @@ export function CameraView({
       if (autoTimeoutRef.current) {
         clearTimeout(autoTimeoutRef.current);
         autoTimeoutRef.current = null;
-<<<<<<< HEAD
-=======
         setStatusMsg(modelReady ? "Auto: hold steady — entire body visible" : "Auto: hold steady…");
->>>>>>> d020a2a8dbc3f2f94bbabefb03bf97a10864ae5c
       }
       if (!hasBody) setStatusMsg("Auto: show entire body");
       else setStatusMsg("Auto: hold steady — entire body visible");
@@ -392,13 +389,8 @@ export function CameraView({
             {steadiness > 0.78 ? <CheckCircle2 aria-hidden="true" className="h-3 w-3 mr-1" /> : <AlertTriangle aria-hidden="true" className="h-3 w-3 mr-1" />}
             {Math.round(steadiness * 100)}% steady
           </Badge>
-<<<<<<< HEAD
           <span className="hidden border border-[var(--color-rule-2)] bg-[var(--color-dark-paper-2)] px-2.5 py-1 text-[11px] text-[var(--color-dark-ink)] sm:inline">
             {captureMode === "auto" ? (modelReady ? "MediaPipe Pose · live" : "Loading pose…") : captureMode === "timer" ? "Timer mode" : "Manual mode"}
-=======
-          <span className="hidden border border-[var(--color-rule-2)] bg-[var(--color-dark-paper-2)] px-3 py-1 text-[11px] text-[var(--color-dark-ink)] sm:inline">
-            {modelReady ? "MediaPipe Pose · live" : "Readiness simulation"}
->>>>>>> d020a2a8dbc3f2f94bbabefb03bf97a10864ae5c
           </span>
         </div>
 
@@ -470,21 +462,10 @@ export function CameraView({
                     className={`w-full justify-start rounded-none px-3 ${captureMode === "capture" ? "bg-muted font-semibold" : ""}`}
                   >
                     <Camera className="h-4 w-4" /> Capture <span className="ml-auto text-xs text-muted-foreground">Manual</span>
-<<<<<<< HEAD
                   </button>
                   <button
                     onClick={() => { historyRef.current = []; lastBodyRef.current = null; if (autoTimeoutRef.current) { clearTimeout(autoTimeoutRef.current); autoTimeoutRef.current = null; } setCaptureMode("auto"); setDropdownOpen(false); }}
                     className={`flex w-full items-center gap-2 px-3 py-2.5 text-sm text-left hover:bg-muted ${captureMode === "auto" ? "bg-muted font-semibold" : ""}`}
-=======
-                  </Button>
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="sm"
-                    aria-pressed={captureMode === "auto"}
-                    onClick={() => { setCaptureMode("auto"); closeCaptureOptions(true); }}
-                    className={`w-full justify-start rounded-none px-3 ${captureMode === "auto" ? "bg-muted font-semibold" : ""}`}
->>>>>>> d020a2a8dbc3f2f94bbabefb03bf97a10864ae5c
                   >
                     <Zap className="h-4 w-4" /> Auto-Capture <span className="ml-auto text-xs text-muted-foreground">Entire body</span>
                   </Button>

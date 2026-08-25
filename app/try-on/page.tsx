@@ -116,13 +116,8 @@ export default function TryOnPage() {
             Frame the body, choose a garment, then compare fit analysis with the rendered result.
           </p>
         </div>
-<<<<<<< HEAD
         <div className="self-end text-sm text-muted-foreground lg:col-span-5 lg:text-right">
           Browser camera · MediaPipe Pose · IDM-VTON · Supabase
-=======
-        <div className="min-w-0 self-end text-sm text-muted-foreground [overflow-wrap:anywhere] lg:col-span-5 lg:text-right">
-          Browser camera · Hugging Face Qwen2-VL · IDM-VTON · Supabase
->>>>>>> d020a2a8dbc3f2f94bbabefb03bf97a10864ae5c
         </div>
       </header>
 

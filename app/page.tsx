@@ -15,7 +15,7 @@ const stages = [
 
 const systemRows = [
   ["Frame", "Browser camera guide", ScanLine],
-  ["Fit", "Qwen2-VL + size chart", ShieldCheck],
+  ["Fit", "MediaPipe Pose + size chart", ShieldCheck],
   ["Drape", "IDM-VTON", Shirt],
   ["Demand", "Supabase analytics", BarChart3],
 ] as const;
@@ -31,16 +31,6 @@ export default function LandingPage() {
           <span>Camera → Fit → Drape → Demand</span>
           <span>AI-assisted sizing for Indonesian fashion</span>
         </div>
-<<<<<<< HEAD
-        <aside className="self-end border-t pt-5 lg:col-span-5" aria-label="Ariadne system overview">
-          <div className="flex items-center justify-between gap-4 pb-4 text-sm"><span className="font-semibold">Hybrid AI route</span><span className="text-xs text-muted-foreground">CAMERA → DECISION</span></div>
-          {[["Frame", "Browser camera guide", ScanLine], ["Fit", "MediaPipe Pose + size chart", ShieldCheck], ["Drape", "IDM-VTON", Shirt], ["Demand", "Supabase analytics", BarChart3]].map(([label, value, Icon]) => {
-            const RowIcon = Icon as typeof ScanLine;
-            return <div key={label as string} className="grid grid-cols-[2rem_minmax(0,1fr)_minmax(0,1.4fr)] items-center gap-3 border-t py-4 text-sm"><RowIcon aria-hidden="true" className="h-4 w-4 text-primary" /><span className="font-semibold">{label as string}</span><span className="text-right text-muted-foreground">{value as string}</span></div>;
-          })}
-        </aside>
-=======
->>>>>>> d020a2a8dbc3f2f94bbabefb03bf97a10864ae5c
       </section>
 
       <section className="border-y bg-[var(--color-paper-2)]">
